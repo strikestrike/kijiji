@@ -17,6 +17,9 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
   "name": "kijiji_automation",
   "version": "1.0.0",
   "description": "kijiji automation",
