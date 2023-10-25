@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <!-- Choosen library -->
+  <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+  <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
+  <!-- bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous">
+  </script>
+  <style>
+    .maxheight{
+        max-height: calc(100vh - 160px);
+    overflow: auto;
+    }
+    .chat_click{
+      cursor: pointer;
+    }
+    .chat_click.selected{
+      background-color: rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      margin-right: 10px;
+    }
+    .text_limit {
+      overflow: hidden;
+      height: 50px;
+      display: block;
+    }
+    button.selected{
+      background-color: rgb(37 99 235 / var(--tw-text-opacity));
+      color:white;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Include the navigation bar template -->
+  <%- include('navbar.ejs'); %>
+
+  <h1 class="text-center text-2xl font-bold mt-4">Conversations</h1>
+  <br />
+
+  
+<% if(conv_data.length > 0) { %>
+  <div class="chat_type text-center">  
+    <button class="kijiji_btn border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg focus:outline-none selected">Kijiji</button>
+    <button class="db_btn border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg focus:outline-none">DB</button>
+
+  </div>
+
+<!-- This is an example component -->
+<div class="container mx-auto shadow-lg rounded-lg maxheight mb-2">
+  <!-- Chatting -->
+<div class="flex flex-row justify-between bg-white">
+  <!-- chat list -->
+  <div class="flex flex-col w-2/5 border-r-2 overflow-y-auto maxheight">
+    <!-- user list -->
+    
+<% if(conv_data.length>0 && conv_data[conv_data.length-1].conversations!= undefined && conv_data[conv_data.length-1].conversations.length>0){ %>
+  <%
+  var convs = conv_data[conv_data.length-1].conversations;
+  console.log(convs);
+  for(let i=0;i<convs.length;i++){
+      let conv = convs[i];
+      let adId = conv.adId;
+      let ad_url = conv.url;
+      let imageUrl= conv.imageUrl;
+      let lm = conv.latestMessage.text;
+      const date = new Date(conv.latestMessage.receivedDate);
+      let receivedDate = date.toLocaleString();
+      let p1 = conv.latestMessage.conversationMetaData.commonMetaData.participants[0];
+      let p2 = conv.latestMessage.conversationMetaData.commonMetaData.participants[1];
+      let sender = p1 && p1.userId == conv.senderUserId ? p1: p2;
+
+      if(!imageUrl.startsWith("https://")){
+        imageUrl = "https://" + imageUrl;
+      }
+      if(imageUrl.indexOf("?rule=") == -1){
+        imageUrl = imageUrl + "?rule=move-140-webp";
+      }
+      %>
+      <div
+      class="chat_click ad_id-<%= adId %> flex flex-row py-2 px-2 justify-center items-center border-b-2"
+    >
+      <div class="w-1/4 mr-4">
+        <img
+          src="<%= imageUrl %>"
+          class="object-cover h-12 w-12 rounded-full"
+          alt=""
+        />
+      </div>
+      <div class="w-full">
+        <div class="text-lg font-semibold sender-name"><%= sender != undefined? sender.name:'' %></div>
+        <span class="text-gray-500 mt-2 text_limit"><%= lm %></span>
+        <hr class="text-gray-300 mt-2">
+        <span class="text-gray-500 text-xs"><%= receivedDate %></span>
+      </div>
+      <div class="d-none h-info"><%= JSON.stringify(conv); %></div>
+    </div>
+      
+      <%
+  }
+  %>
+<% } %> 
+  </div>
+  <!-- end chat list -->
+  <!-- message -->
+  <div class="w-full px-5 flex flex-col justify-between maxheight">
+    
+    <div class="flex flex-col mt-5 msgs_cont">
+        <% for(var i=0; i<messages_arr.length; i){ %>
+          <% for(var j=0; j<messages_arr;j++) { %>
+            <div class="flex justify-end mb-2">
+        <div class="mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white">
+          <%- messages_arr[i].messages[j].text %>
+        </div>
+        
+      </div>
+          <% } %>
+        <% } %>
+      
+    </div>
+    <div class="py-5 flex">
+      <textarea
+        class="flex-col w-full bg-gray-300 py-3 px-3 rounded-xl message-txt"
+        type="text"
+        placeholder="type your message here..."
+      /><%- typeof def_msg!== "undefined" ? def_msg: '' %></textarea>
+      <button class="flex flex-col w-1/5 btn btn-primary mx-2 py-3 send-btn">Send</button>
+    </div>
+  </div>
+  <!-- end message -->
+  
+  <div class="ad_details w-2/5 border-l-2 px-5 d-none">
+    <div class="flex flex-col">
+      <div class="ad_title font-semibold text-xl py-4"></div>
+      <img
+        src="https://source.unsplash.com/L2cxSuKWbpo/600x600"
+        class="ad_image object-cover rounded-xl h-64"
+        alt=""
+      />
+      <div class="ad_date font-semibold py-4"></div>
+      <a href="#" target="_blank" class="ad_url btn btn-primary">
+        Go to ad page
+      </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatDateToHumanReadable(dateString) {
+    const date = new Date(dateString);
+
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short'
+    };
+
+    return date.toLocaleDateString('en-US', options);
+  }
+  function addMessage(txt,classes){
+    var msg = `<div class="flex justify-end mb-2">
+      <div class="mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white">`+txt+`</div>
+    </div>`;
+    if(classes.indexOf('h3--no') == -1 && classes.indexOf('me') == -1){
+        msg = `<div class="flex justify-start mb-4">
+        <div class="ml-2 py-3 px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">`+txt+`</div>
+      </div>`;
+    }
+    jQuery('.msgs_cont').append(msg);
+  }
+  function clearAllMessages(){
+    jQuery('.msgs_cont').html('');
+  }
+
+  var sender_name = '';
+  var sender_id = '';
+  jQuery('.chat_click').on('click',function(evt){
+
+    let class_arr = jQuery(this).attr('class').split(' ');
+    sender_name = jQuery(this).find('.sender-name').text();
+    let id = '';
+    var ad_data = [];
+    try{
+      ad_data = JSON.parse( jQuery(this).find('.h-info').text());
+    }catch(err){
+      console.log(err);
+    }
+    for(var i=0;i<class_arr.length;i++){
+        const idx = class_arr[i].indexOf('ad_id');
+        if(idx !=-1){
+            id = class_arr[i].replace('ad_id-','');
+            sender_id = id;
+            // console.log(ad_data);
+             $.post('/inbox?'+new Date().getTime(), {
+                time_stamp: new Date().getTime(),
+                conv_id: id,
+                sender_name: sender_name,
+                sender_title:ad_data.title,
+                // Add more data as needed
+            }, function(response) {                
+                clearAllMessages();
+                var r = response;
+                for(var i = 0; i < r.length;i++) {
+                  addMessage(r[i].txt+"<br>"+r[i].time,r[i].classes);
+                }
+
+            })
+            .fail(function(xhr, status, error) {
+                // Handle errors here
+                console.error('Error:', status, error);
+            });
+        }
+    }
+
+    jQuery('.chat_click').removeClass('selected');
+    jQuery(this).addClass('selected'); 
+
+    updateSendButtonState();
+
+    //update ad details
+    jQuery('.ad_details').removeClass('d-none');
+    try{
+      
+      var imageUrl = ad_data.imageUrl;
+      if(imageUrl.indexOf("https://") != 0){
+        imageUrl = "https://" + imageUrl;
+      }
+      if(imageUrl.indexOf("?rule=") == -1){
+        imageUrl = imageUrl + "?rule=move-960-webp";
+      }
+
+      jQuery('.ad_details .ad_url').attr('href', 'https://www.kijijiautos.ca/vip/'+ad_data.adId);
+      jQuery('.ad_details .ad_date').text(formatDateToHumanReadable(ad_data.creationDate));
+      jQuery('.ad_details .ad_title').text(ad_data.title);
+      jQuery('.ad_details .ad_image').attr('src', imageUrl);
+      
+    }catch(error){
+      console.log(error);
+    }
+});
+function sendMessage(){
+    var txt = jQuery('.message-txt').val();
+    if(sender_name == '' || sender_id == ''){
+      return false;
+    }
+    // console.log(sender_name, sender_id);
+    
+    $.post('/inbox?'+new Date().getTime(), {
+        time_stamp: new Date().getTime(),
+        conv_txt: txt,
+        conv_id: sender_id,
+        sender_name: sender_name,
+        // Add more data as needed
+    }, function(response) {
+        // Handle the successful response here
+        // console.log('Success:', response);
+        clearAllMessages();
+        var r = response;
+        // console.log('Success:', r);
+        for(var i = 0; i < r.length;i++) {
+          addMessage(r[i].txt+"<br>"+r[i].time,r[i].classes);
+        }
+        jQuery('.message-txt').val('');
+        jQuery('.send-btn').attr('disabled', false);
+    })
+    .fail(function(xhr, status, error) {
+        // Handle errors here
+        console.error('Error:', status, error);
+    });
+}
+function updateSendButtonState() {
+  var txt = jQuery('.message-txt').val();
+  jQuery('.send-btn').attr('disabled', txt=='' || sender_id=='' || sender_name=='');
+}
+updateSendButtonState();
+
+//sending message
+jQuery('.send-btn').on('click',sendMessage);
+
+jQuery('.message-txt').on('input',function(){
+  updateSendButtonState();
+});
+
+jQuery('.message-txt').on('keydown', function(event) {
+  if (event.which === 13) {
+    // The user pressed the Enter key
+    sendMessage();
+    event.preventDefault();
+  }
+});
+
+function updateMessages(){
+  if(sender_name == '' || sender_id == ''){
+    return false;
+  }
+  if($('.chat_type .db_btn.selected').length == 1){
+    $.post('/db_msgs', {
+        ad_id: sender_id,
+    }, function(response) {
+      
+      clearAllMessages();
+      if(response.msgs.length > 0){
+        var r = response.msgs;
+        // console.log('Success:', r);
+        for(var i = 0; i < r.length;i++) {
+          addMessage(r[i].msg+"<br>"+r[i].dt.replace('T',' ').substr(0,19),r[i].sender);
+        }
+      }
+    })
+    .fail(function(xhr, status, error) {
+        // Handle errors here
+        console.error('Error:', status, error);
+    });
+  }else{
+  $.post('/inbox?'+new Date().getTime(), {
+        time_stamp: new Date().getTime(),
+        action: 'updateMessages',
+        conv_id: sender_id,
+        sender_name: sender_name,
+        // Add more data as needed
+    }, function(response) {
+        // Handle the successful response here
+        // console.log('Success:', response);
+        clearAllMessages();
+        var r = response;
+        // console.log('Success:', r);
+        for(var i = 0; i < r.length;i++) {
+          addMessage(r[i].txt+"<br>"+r[i].time,r[i].classes);
+        }
+    })
+    .fail(function(xhr, status, error) {
+        // Handle errors here
+        console.error('Error:', status, error);
+    });
+  }
+}
+
+//handle chat type buttons
+jQuery('.chat_type button').on('click', function(){    
+    jQuery('.chat_type button').removeClass('selected');
+    jQuery(this).addClass('selected');
+    updateMessages();
+});
+setInterval(updateMessages, 5000);
+
+</script>
+<% } else { %>
+    <div class="text-center">
+      <br>
+      <br>
+      <h1 class="h1">Start a conversation!</h1>
+      <p>No messages are being displayed, please start a new conversation.</p>
+      <a href="/" class="btn btn-primary mt-4">Search</a>
+    </div>
+<% } %>
+</div>
+<style>
+  .msg-box{
+    padding: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-size: 18px;
+    box-shadow: 0 0 6px 6px #f5f5f56b;
+  }
+  .card-box{
+    background-color: #fff;
+  }
+
+</style>
+</body>
+
+</html>

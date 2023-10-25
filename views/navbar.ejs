@@ -1,0 +1,28 @@
+<% if(typeof filters != "undefined" && filters != null && filters.isLogedin) {%>
+  <nav class="bg-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <a href="#" class="flex items-center text-white text-xl font-semibold">
+            Kijijiautos
+          </a>
+        </div>
+        <div class="flex items-center">
+          <a href="/" class="text-gray-300 hover:text-white px-3 py-2">
+            Search
+          </a>
+          <a href="/inbox" class="text-gray-300 hover:text-white px-3 py-2">
+            Conversations
+          </a>
+          <a href="/settings" class="text-gray-300 hover:text-white px-3 py-2">
+            Settings
+          </a>
+          <a href="/queue_status" class="text-gray-300 hover:text-white px-3 py-2">
+            Queue Status
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+  

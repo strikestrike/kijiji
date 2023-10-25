@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Kijiji</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <!-- Choosen library -->
+  <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+  <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
+  <!-- bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+    crossorigin="anonymous"></script>
+
+  <style>
+    .chosen-container {
+      min-width: 40%;
+    }
+
+    .chosen-container-multi .chosen-choices li.search-choice {
+      background-image: none;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 3px 20px 5px 10px;
+    }
+
+    .chosen-container-multi .chosen-choices li.search-choice .search-choice-close {
+      filter: brightness(20);
+      top: 5px;
+    }
+
+    .chosen-container-multi .chosen-choices {
+      padding: 4px 10px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+    }
+
+    form,.separator {
+      padding-top: 20px;
+      border-top: 1px solid #dbdbdb;
+      margin-top: 20px;
+    }
+
+    form label {
+      font-weight: bold;
+      margin-right: 4px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select,
+    .input {
+      text-transform: none;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      min-width: 100px;
+      background: #f8f8f8;
+      padding: 2px 5px;
+    }
+
+    .img_icon {
+      display: inline-block;
+      vertical-align: middle;
+      padding: 0 4px;
+    }
+
+    ul.img_box li {
+      display: inline-block;
+      padding: 2px 6px;
+      margin: 2px;
+      border: 1px solid #dbdbdb;
+    }
+
+    ul.img_box {
+      margin-bottom: 8px;
+    }
+
+    .desc li {
+      display: inline-block;
+      padding: 10px;
+    }
+
+    .card-title {
+      font-weight: bold;
+    }
+    .price{
+      color:rgb(0, 175, 0);
+      font-weight: bold;
+    }
+    .txtarea-label,.input-label{
+      display:block;
+    }
+    .txtarea-label textarea{
+      min-height:200px;
+    }
+    .desc li span,.small{
+      color: grey;
+    font-size: 10px;
+    display: block;
+    padding: 4px 0 0;
+    }
+    /* CSS for Fade Animation */
+    .fade {
+      animation-name: fade;
+      animation-duration: 0.5s; /* Adjust the duration as needed */
+    }
+.multiSendBtn{
+    position: fixed;
+    right: 40px;
+    bottom: 30px;
+    z-index: 9;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+}
+    @keyframes fade {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+    .imgSlide{
+      display:none;
+    }
+    .show{
+      display:block;
+    }
+    /* Scroll Container Styles */
+.scroll-container {
+  width: 300px; /* Adjust the width as needed */
+  height: 400px; /* Adjust the height as needed */
+  overflow: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Scroll Content Styles */
+.scroll-content {
+  padding: 16px;
+}
+
+/* Item Styles */
+.item {
+  background-color: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+/* Hover Effect for Items */
+.item:hover {
+  background-color: #e0e0e0;
+}
+
+  </style>
+</head>
+
+<body>
+   <!-- Include the navigation bar template -->
+  <%- include('navbar.ejs'); %>
+  
+
+    <% if(filters!=null && filters.isLogedin == true){%>
+      <form method="post" action="/" class="text-center mb-3">
+        <input type="hidden" name="logout" value="true">
+        <button class="btn btn-danger">Logout</button>
+      </form>
+    <% } %>
+    <% if(filters!=null &&  filters.isLoginNeeded===true){ %>
+                  
+
+      <% if(filters.loginErrorMsg!==undefined){ %>
+        <div class="alert alert-danger"><%= filters.loginErrorMsg %></div>
+      <% } %>
+  <div class="Container">
+
+      <!-- Section: Design Block -->
+<section class=" text-center text-lg-start">
+  <style>
+    .rounded-t-5 {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+
+    @media (min-width: 992px) {
+      .rounded-tr-lg-0 {
+        border-top-right-radius: 0;
+      }
+
+      .rounded-bl-lg-5 {
+        border-bottom-left-radius: 0.5rem;
+      }
+    }
+  </style>
+  <div class="card mb-3 container">
+    <div class="row g-0 d-flex align-items-center">
+      <div class="d-lg-flex">
+        <img src="https://www.kijijiautos.ca/static/d7ef772d06ff0f7b00e0.svg" class="w-40 mt-5 m-auto rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5" />
+      </div>
+      <div class="text-center" >
+        <div class="card-body py-5 px-md-5">
+          <h2 class="h2">Please use <a href="https://www.kijijiautos.ca/">kijijiautos.ca</a> credentials to login</h2>
+          
+          <form method="POST" action="/" class="text-center pb-3">
+            <input type="hidden" name="start_login">
+            <!-- Email input -->
+            <div class="form-outline mb-4 m-auto"style="max-width: 640px;">
+              <input type="email" id="form2Example1" name="uname" class="form-control" placeholder="Email address" required/>
+            </div>
+
+            <!-- Password input -->
+            <div class="form-outline mb-4 m-auto"style="max-width: 640px;">
+              <input type="password" id="form2Example2" name="upass" class="form-control" placeholder="Password" required/>
+            </div>
+
+            <!-- 2 column grid layout for inline styling -->
+            <div class="row mb-4" >
+              <div class="col d-flex justify-content-center">
+                <!-- Checkbox -->
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="remember_me" id="form2Example31" checked />
+                  <label class="form-check-label" for="form2Example31"> Remember me </label>
+                </div>
+              </div>
+              
+            </div>
+
+            <!-- Submit button -->
+            <button class="btn btn-primary btn-block mb-4">Sign in</button>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Section: Design Block -->
+ 
+  </div>
+  <% } else { %>
+  <div class="Container">
+
+    <% if(filters!=null && filters.results==undefined && filters.start_conversation == undefined){ %>
+          <h1 class="h1 text-center">All in Canada</h1>
+          <form method="post" action="/" class="text-center">
+        <input type="hidden" name="show_results" value="show">
+        <button class="btn btn-info showResultsBtn" style="color:white">
+          <%= filters.results_button %>
+        </button>
+      </form>
+      
+      <script>
+        // Function to move the progress bar
+        function moveProgressBar(percentage) {
+          const progressBar = document.querySelector('.progress-bar');
+          progressBar.style.width = `${percentage}%`;
+          progressBar.setAttribute('aria-valuenow', percentage);
+          progressBar.innerHTML = `${percentage}%`;
+        }
+        jQuery('.showResultsBtn').on('click',function(){
+          var cnt = 1;
+          var ev_1 = setInterval(function(){
+              moveProgressBar(cnt);
+              cnt++;
+              if(cnt>100){//145 * 100 = 14500 milliseconds
+                  clearInterval(ev_1);
+              }
+          },145);
+        });
+      </script>
+      <br>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div>
+      </div>
+      <div class="text-center mt-10">
+        <form method="post" action="/" class="d-inline">
+          <input type="hidden" name="loadFilters" value="true">
+          <button class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise d-inline" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+              <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>
+          load filters</button>
+        </form>
+        <form method="post" action="/" class="d-inline">
+          <input type="hidden" name="saveFilters" value="true">
+          <button class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle d-inline" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+          save filters</button>
+        </form>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history d-inline" viewBox="0 0 16 16">
+            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+            <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
+            <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
+          </svg>
+          History
+        </button>
+        <%
+          function formatTimestamp(timestampString) {
+            // Remove the "filter_history_" prefix
+            const timestamp = parseInt(timestampString.replace('filter_history_', ''));
+        
+            // Create a Date object using the timestamp
+            const date = new Date(timestamp);
+        
+            // Format the date as a human-readable string (adjust the format as needed)
+            const formattedDate = date.toLocaleString(); // You can use other formatting methods as well
+        
+            return formattedDate;
+          }
+        %>
+<!-- The Modal -->
+<div class="modal" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Search History</h4>
+        <button type="button" class="btn-close bg-red-600 text-white leading-none" data-bs-dismiss="modal">X</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="scroll-container m-auto">
+          <div class="scroll-content">
+            <% if(filters.filters_history && filters.filters_history.length>0){ %>
+              <% for(var i=0;i<filters.filters_history.length;i++){ %>
+                <form method="post" action="/" class="m-0 p-0">
+                  <input type="hidden" name="loadFilters" value="<%= filters.filters_history[i] %>">
+                  <button class="item d-block w-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history d-inline" viewBox="0 0 16 16">
+                      <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+                      <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
+                      <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
+                    </svg>  
+                    <%= formatTimestamp(filters.filters_history[i]) %>
+                    </button>
+                </form>
+                <% } %>
+                <% } %>
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+      </div>
+      <!-- filters form -->
+      <form action="/" method="post">
+        <input type="hidden" name="filtersForm" value="true">
+      <div class="row m-0">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8 p-4 py-8 text-center" style="box-shadow: 0px 9px 11px #e1e1e1;">
+          
+          <div class="">
+            <label>Location</label><br>
+            <select data-placeholder="Begin typing to filter..." multiple class="location-select" name="filter_location"
+              value="<% filters.location %>">
+              <% if (filters.location) { %>
+                <option value="<%= filters.location %>" selected><%= filters.location %></option>
+              <% } %>
+                          </select>
+            <br>
+            <select data-placeholder="Begin typing to filter..." class="radius-select" name="filter_radius">
+              <option value="5" <%= filters.radius==5?'selected="selected"':'' %>>+ 5 km</option>
+              <option value="10" <%= filters.radius==10?'selected="selected"':'' %>>+ 10 km</option>
+              <option value="15" <%= filters.radius == 15 ? 'selected="selected"' : '' %>>+ 15 km</option>
+              <option value="25" <%= filters.radius == 25 ? 'selected="selected"' : '' %>>+ 25 km</option>
+              <option value="50" <%= filters.radius == 50 ? 'selected="selected"' : '' %>>+ 50 km</option>
+              <option value="100" <%= filters.radius == 100 ? 'selected="selected"' : '' %>>+ 100 km</option>
+              <option value="150" <%= filters.radius == 150 ? 'selected="selected"' : '' %>>+ 150 km</option>
+              <option value="250" <%= filters.radius == 250 ? 'selected="selected"' : '' %>>+ 250 km</option>
+              <option value="500" <%= filters.radius == 500 ? 'selected="selected"' : '' %>>+ 500 km</option>
+              <option value="750" <%= filters.radius == 750 ? 'selected="selected"' : '' %>>+ 750 km</option>
+              <option value="1000" <%= filters.radius == 1000 ? 'selected="selected"' : '' %>>+ 1,000 km</option>
+
+            </select>
+            <br>
+            <label>
+            <input type="checkbox" name="limit_radius" <%= filters.limit_radius=='on'?'checked':'' %>> Limit radius to province</label>
+            <br>
+            <button class="btn btn-primary mt-2">Submit</button>
+          </div>
+          <script>
+            function updateOptions(newOptions) {
+                var selectElement = $(".location-select");
+
+                // Clear existing options
+                selectElement.empty();
+
+                // Add new options
+                for (var i = 0; i < newOptions.length; i++) {
+                    selectElement.append($('<option>', {
+                        value: newOptions[i].value,
+                        text: newOptions[i].text
+                    }));
+                }
+
+                // Update chosen library
+                selectElement.trigger("chosen:updated");
+            }
+            $(".location-select").chosen({
+              no_results_text: "Please wait ...",
+              max_selected_options: 1
+            });
+            
+            //auto refresh option values using ajax
+            var intVal;
+            $(".location-select").parent().find(".chosen-search-input").on("input", function() {
+                var searchKey = $(this).val();
+                if(intVal){clearInterval(intVal);}
+
+                intVal = setTimeout(function(){
+                  var apiUrl = window.location.origin + '/cityName?citykey='+searchKey;
+
+                  $.ajax({
+                      url: apiUrl,
+                      type: "GET",
+                      success: function(data) {
+                        var newOptions = [];
+                        for(var i=0;i<data.vals.length;i++){
+                          const valName = data.vals[i].address.mainText+", "+data.vals[i].address.secondaryText;
+                          newOptions.push({value:valName,text:valName});
+                        }
+                        updateOptions(newOptions);
+                      },
+                      error: function(xhr, status, error) {
+                          console.log("Error:", error);
+                      }
+                  });
+                  
+                },1500);
+                
+            });
+            // $(".location-select").on('change',function(){
+            //   const isEnableOptions = $(this).val().length>0;
+            //   $(".radius-select").chosen(isEnableOptions?"chosen":"destroy");
+            //   $(".radius-select").prop("disabled", isEnableOptions);
+            //   $("[name='limit_radius']").prop("disabled", isEnableOptions);
+              
+            // });
+            //radius
+            $(".radius-select").chosen({
+              no_results_text: "Please wait ...",
+            })
+          </script>
+          <div class="separator">
+            <label>CARFAX History Report</label>
+            <select name="carfax">
+              <option value="all" <%- filters.carfax && filters.carfax == 'all'?'selected':'' %>>All</option>
+              <option value="free" <%- filters.carfax && filters.carfax == 'free'?'selected':'' %>>Free Report</option>
+              <option value="request" <%- filters.carfax && filters.carfax == 'request'?'selected':'' %>>Request/Buy Report</option>
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+          <div class="separator">
+            <label>Make</label>
+            <select data-placeholder="Begin typing to filter..." multiple class="make-select" name="filter_make"
+              value="<% filters.make %>">
+            
+              <% for(var i=0; filters.make_data!= undefined && i < filters.make_data.length; i++) { %>
+                <option value="<%= filters.make_data[i] %>">
+                  <%= filters.make_data[i] %>
+                </option>
+                <% } %>
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+          <script>
+            $(".make-select").chosen({
+              no_results_text: "Oops, nothing found!"
+            })
+
+            // Get the selected values from the 'filters.make' array passed from the server-side
+            var selectedValues = <%- JSON.stringify(filters && filters.make && filters.make.length > 0 ? filters.make : []) %>;
+
+            // Set the selected values programmatically
+            $(".make-select").val(selectedValues).trigger("chosen:updated");
+
+          </script>
+
+          <div class="separator">
+            <label>Model</label>
+            <select data-placeholder="Begin typing to filter..." multiple class="model-select" name="filter_model"
+              value="<% filters.model %>" <%=filters.model_data==undefined?'disabled':'' %>>
+
+              <% if(filters.model_data !==undefined){ %>
+                <% for(var i=0; i < filters.model_data.length; i++) { %>
+                  <option value="<%= filters.model_data[i] %>">
+                    <%= filters.model_data[i] %>
+                  </option>
+                  <% }//end for %>
+                    <% }//end if %>
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+          <script>
+            $(".model-select").chosen({
+              no_results_text: "Oops, nothing found!"
+            })
+            // Get the selected values from the 'filters.model' array passed from the server-side
+            var selectedValues = <%- JSON.stringify(filters && filters.model && filters.model.length > 0 ? filters.model : []) %>;
+
+            // Set the selected values programmatically
+            $(".model-select").val(selectedValues).trigger("chosen:updated");
+
+          </script>
+
+          <div class="separator">
+            <label>Trim</label>
+            <select data-placeholder="Begin typing to filter..." multiple class="trim-select" name="filter_trim"
+              value="<% filters.trim %>" <%=filters.trim_data==undefined?'disabled':'' %>>
+
+              <% if(filters.trim_data !==undefined){ %>
+                <% for(var i=0; i < filters.trim_data.length; i++) { %>
+                  <option value="<%= filters.trim_data[i] %>">
+                    <%= filters.trim_data[i] %>
+                  </option>
+                  <% }//end for %>
+                    <% }//end if %>
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+          <script>
+            $(".trim-select").chosen({
+              no_results_text: "Oops, nothing found!"
+            })
+            // Get the selected values from the 'filters.trim' array passed from the server-side
+            var selectedValues = <%- JSON.stringify(filters && filters.trim && filters.trim.length > 0 ? filters.trim : []) %>;
+
+            // Set the selected values programmatically
+            $(".trim-select").val(selectedValues).trigger("chosen:updated");
+
+          </script>
+
+
+          <div class="separator">
+            <label>Year from</label>
+            <select data-placeholder="Year from" class="trim-select" name="year_from_data"
+              value="<%= filters.year_from %>" <%=filters.year_from_data==undefined?'disabled':'' %>>
+
+              <% if(filters.year_from_data !==undefined){ %>
+                <% for(var i=0; i < filters.year_from_data.length; i++) { %>
+                  <option value="<%= filters.year_from_data[i] %>"
+                    <%=filters.year_from==filters.year_from_data[i]?'selected':'' %>>
+                    <%= filters.year_from_data[i] %>
+                  </option>
+                  <% }//end for %>
+                    <% }//end if %>
+            </select>
+            <div style="display:inline-block;width:20px;"></div>
+            <label>Year to</label>
+            <select data-placeholder="Year to" class="trim-select" name="year_to_data"
+              <%=filters.year_to_data==undefined?'disabled':'' %>>
+
+              <% if(filters.year_to_data !==undefined){ %>
+                <% for(var i=0; i < filters.year_to_data.length; i++) { %>
+                  <option value="<%= filters.year_to_data[i] %>"
+                    <%=filters.year_to==filters.year_to_data[i]?'selected':'' %>>
+                    <%= filters.year_to_data[i] %>
+                  </option>
+                  <% }//end for %>
+                    <% }//end if %>
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Price from</label>
+            <input name="price_from" placeholder="All" min="0" max="9999999" type="number"
+              value="<%= filters.price_from %>">
+            <div style="display:inline-block;width:20px;"></div>
+            <label>Price to</label>
+            <input name="price_to" placeholder="All" min="0" max="9999999" type="number"
+              value="<%= filters.price_to %>">
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Manual Transmission
+              <input type='hidden' value='0' name='tran_manual'>
+              <input type="checkbox" name="tran_manual" value="1" <%=filters.tran_manual==1?'checked':'' %>>
+            </label>
+            <div style="display:inline-block;width:20px;"></div>
+            <label>Automatic Transmission
+              <input type='hidden' value='0' name='tran_automatic'>
+              <input type="checkbox" name="tran_automatic" value="1" <%=filters.tran_automatic==1?'checked':'' %>>
+            </label>
+
+            <button class="btn btn-primary">Submit</button>
+
+          </div>
+
+          <div class="separator">
+            <label>Kilometres from</label>
+            <input name="Kilometres_from" placeholder="All" min="0" max="999999" type="number"
+              value="<%= filters.Kilometres_from %>">
+            <div style="display:inline-block;width:20px;"></div>
+            <label>Kilometres to</label>
+            <input name="Kilometres_to" placeholder="All" min="0" max="999999" type="number"
+              value="<%= filters.Kilometres_to %>">
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Body type</label>
+            <ul class="img_box">
+              <li><input id="c-Limousine" name="body_type" type="checkbox" value="Limousine" <%=filters.body_type &&
+                  filters.body_type.indexOf('Limousine')!=-1?'checked':'' %>>
+                <label for="c-Limousine">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-sedan.svg" alt="Sedan"
+                      width="40" height="40"></div><span>Sedan</span>
+                </label>
+              </li>
+              <li><input id="c-EstateCar" name="body_type" type="checkbox" value="EstateCar" <%=filters.body_type &&
+                  filters.body_type.indexOf('EstateCar')!=-1?'checked':'' %>><label for="c-EstateCar">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-wagon.svg" alt="Wagon"
+                      width="40" height="40"></div><span>Wagon</span>
+                </label></li>
+              <li><input id="c-Van" name="body_type" type="checkbox" value="Van" <%=filters.body_type &&
+                  filters.body_type.indexOf('Van')!=-1?'checked':'' %>><label for="c-Van">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-van.svg" alt="Van"
+                      width="40" height="40"></div><span>Van</span>
+                </label></li>
+              <li><input id="c-Cabrio" name="body_type" type="checkbox" value="Cabrio" <%=filters.body_type &&
+                  filters.body_type.indexOf('Cabrio')!=-1?'checked':'' %>><label for="c-Cabrio">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-convertible.svg"
+                      alt="Convertible" width="40" height="40"></div><span>Convertible</span>
+                </label>
+              </li>
+              <li><input id="c-SportsCar" name="body_type" type="checkbox" value="SportsCar" <%=filters.body_type &&
+                  filters.body_type.indexOf('SportsCar')!=-1?'checked':'' %>><label for="c-SportsCar">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-coupe.svg"
+                      alt="Sports car" width="40" height="40"></div><span>Sports
+                    car</span>
+                </label></li>
+              <li><input id="c-Pickup" name="body_type" type="checkbox" value="Pickup" <%=filters.body_type &&
+                  filters.body_type.indexOf('Pickup')!=-1?'checked':'' %>><label for="c-Pickup">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-pickup.svg"
+                      alt="Pickup truck" width="40" height="40"></div><span>Pickup
+                    truck</span>
+                </label></li>
+              <li><input id="c-Suv" name="body_type" type="checkbox" value="Suv" <%=filters.body_type &&
+                  filters.body_type.indexOf('Suv')!=-1?'checked':'' %>><label for="c-Suv">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-suv-crossover.svg"
+                      alt="SUV" width="40" height="40"></div><span>SUV</span>
+                </label></li>
+              <li><input id="c-Hatchback" name="body_type" type="checkbox" value="Hatchback" <%=filters.body_type &&
+                  filters.body_type.indexOf('Hatchback')!=-1?'checked':'' %>><label for="c-Hatchback">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-hatchback.svg"
+                      alt="Hatchback" width="40" height="40"></div><span>Hatchback</span>
+                </label>
+              </li>
+              <li><input id="c-OtherCar" name="body_type" type="checkbox" value="OtherCar" <%=filters.body_type &&
+                  filters.body_type.indexOf('OtherCar')!=-1?'checked':'' %>><label for="c-OtherCar">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/icons/icon-bodytype-sedan.svg" alt="Other"
+                      width="40" height="40"></div><span>Other</span>
+                </label></li>
+            </ul>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Condition</label>
+            <label>
+              <input type='hidden' value='0' name='cond_used'>
+              <input type="checkbox" name="cond_used" value="1" <%=filters.cond_used==1?'checked':'' %>>
+              Used
+            </label>
+            <label>
+              <input type='hidden' value='0' name='cond_new'>
+              <input type="checkbox" name="cond_new" value="1" <%=filters.cond_new==1?'checked':'' %>>
+              New
+            </label>
+            <label>
+              <input type='hidden' value='0' name='cond_cer_pre_owned'>
+              <input type="checkbox" name="cond_cer_pre_owned" value="1" <%=filters.cond_cer_pre_owned==1?'checked':''
+                %>>
+              Certified Pre-Owned
+            </label>
+
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Fuel type</label>
+            <label>
+              <input type='hidden' value='0' name='fuel_gas'>
+              <input type="checkbox" name="fuel_gas" value="1" <%=filters.fuel_gas==1?'checked':'' %>>
+              Gas
+            </label>
+            <label>
+              <input type='hidden' value='0' name='fuel_diesel'>
+              <input type="checkbox" name="fuel_diesel" value="1" <%=filters.fuel_diesel==1?'checked':'' %>>
+              Diesel
+            </label>
+            <label>
+              <input type='hidden' value='0' name='fuel_electric'>
+              <input type="checkbox" name="fuel_electric" value="1" <%=filters.fuel_electric==1?'checked':'' %>>
+              Electric
+            </label>
+            <label>
+              <input type='hidden' value='0' name='fuel_hybrid'>
+              <input type="checkbox" name="fuel_hybrid" value="1" <%=filters.fuel_hybrid==1?'checked':'' %>>
+              Hybrid
+            </label>
+            <label>
+              <input type='hidden' value='0' name='fuel_other'>
+              <input type="checkbox" name="fuel_other" value="1" <%=filters.fuel_other==1?'checked':'' %>>
+              Other
+            </label>
+
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+
+          <div class="separator">
+            <label>Drivetrain</label>
+            <label>
+              <input type='hidden' value='0' name='drv_four_wheel'>
+              <input type="checkbox" name="drv_four_wheel" value="1" <%=filters.drv_four_wheel==1?'checked':'' %>>
+              Four-wheel
+            </label>
+            <label>
+              <input type='hidden' value='0' name='drv_all_wheel'>
+              <input type="checkbox" name="drv_all_wheel" value="1" <%=filters.drv_all_wheel==1?'checked':'' %>>
+              All-wheel
+            </label>
+            <label>
+              <input type='hidden' value='0' name='drv_front_wheel'>
+              <input type="checkbox" name="drv_front_wheel" value="1" <%=filters.drv_front_wheel==1?'checked':'' %>>
+              Front-wheel
+            </label>
+            <label>
+              <input type='hidden' value='0' name='drv_rear_wheel'>
+              <input type="checkbox" name="drv_rear_wheel" value="1" <%=filters.drv_rear_wheel==1?'checked':'' %>>
+              Rear-wheel
+            </label>
+            <label>
+              <input type='hidden' value='0' name='drv_other'>
+              <input type="checkbox" name="drv_other" value="1" <%=filters.drv_other==1?'checked':'' %>>
+              Other
+            </label>
+
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Seller type</label>
+            <label>
+              <input type='hidden' value='0' name='slr_dealer'>
+              <input type="checkbox" name="slr_dealer" value="1" <%=filters.slr_dealer==1?'checked':'' %>>
+              Dealer
+            </label>
+            <label>
+              <input type='hidden' value='0' name='slr_private'>
+              <input type="checkbox" name="slr_private" value="1" <%=filters.slr_private==1?'checked':'' %>>
+              Private seller
+            </label>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+
+          <div class="separator">
+            <label>Exterior colour</label>
+            <ul class="img_box">
+              <li><input id="ecol-BLACK" name="ecol" type="checkbox" value="BLACK" <%=filters.ecol &&
+                  filters.ecol.indexOf('BLACK')!=-1?'checked':'' %>><label for="ecol-BLACK">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-black.svg" alt="Black"
+                      width="40" height="40"></div><span>Black</span>
+                </label></li>
+              <li><input id="ecol-GREY" name="ecol" type="checkbox" value="GREY" <%=filters.ecol &&
+                  filters.ecol.indexOf('GREY')!=-1?'checked':'' %>><label for="ecol-GREY">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-grey.svg" alt="Grey"
+                      width="40" height="40"></div><span>Grey</span>
+                </label></li>
+              <li><input id="ecol-BEIGE" name="ecol" type="checkbox" value="BEIGE" <%=filters.ecol &&
+                  filters.ecol.indexOf('BEIGE')!=-1?'checked':'' %>><label for="ecol-BEIGE">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-beige.svg" alt="Beige"
+                      width="40" height="40"></div><span>Beige</span>
+                </label></li>
+              <li><input id="ecol-BROWN" name="ecol" type="checkbox" value="BROWN" <%=filters.ecol &&
+                  filters.ecol.indexOf('BROWN')!=-1?'checked':'' %>><label for="ecol-BROWN">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-brown.svg" alt="Brown"
+                      width="40" height="40"></div><span>Brown</span>
+                </label></li>
+              <li><input id="ecol-RED" name="ecol" type="checkbox" value="RED" <%=filters.ecol &&
+                  filters.ecol.indexOf('RED')!=-1?'checked':'' %>><label for="ecol-RED">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-red.svg" alt="Red"
+                      width="40" height="40"></div><span>Red</span>
+                </label></li>
+              <li><input id="ecol-GREEN" name="ecol" type="checkbox" value="GREEN" <%=filters.ecol &&
+                  filters.ecol.indexOf('GREEN')!=-1?'checked':'' %>><label for="ecol-GREEN">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-green.svg" alt="Green"
+                      width="40" height="40"></div><span>Green</span>
+                </label></li>
+              <li><input id="ecol-BLUE" name="ecol" type="checkbox" value="BLUE" <%=filters.ecol &&
+                  filters.ecol.indexOf('BLUE')!=-1?'checked':'' %>><label for="ecol-BLUE">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-blue.svg" alt="Blue"
+                      width="40" height="40"></div><span>Blue</span>
+                </label></li>
+              <li><input id="ecol-PURPLE" name="ecol" type="checkbox" value="PURPLE" <%=filters.ecol &&
+                  filters.ecol.indexOf('PURPLE')!=-1?'checked':'' %>><label for="ecol-PURPLE">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-purple.svg" alt="Purple"
+                      width="40" height="40"></div><span>Purple</span>
+                </label></li>
+              <li><input id="ecol-GOLD" name="ecol" type="checkbox" value="GOLD" <%=filters.ecol &&
+                  filters.ecol.indexOf('GOLD')!=-1?'checked':'' %>><label for="ecol-GOLD">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-gold.svg" alt="Gold"
+                      width="40" height="40"></div><span>Gold</span>
+                </label></li>
+              <li><input id="ecol-WHITE" name="ecol" type="checkbox" value="WHITE" <%=filters.ecol &&
+                  filters.ecol.indexOf('WHITE')!=-1?'checked':'' %>><label for="ecol-WHITE">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-white.svg" alt="White"
+                      width="40" height="40"></div><span>White</span>
+                </label></li>
+              <li><input id="ecol-ORANGE" name="ecol" type="checkbox" value="ORANGE" <%=filters.ecol &&
+                  filters.ecol.indexOf('ORANGE')!=-1?'checked':'' %>><label for="ecol-ORANGE">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-orange.svg" alt="Orange"
+                      width="40" height="40"></div><span>Orange</span>
+                </label></li>
+              <li><input id="ecol-SILVER" name="ecol" type="checkbox" value="SILVER" <%=filters.ecol &&
+                  filters.ecol.indexOf('SILVER')!=-1?'checked':'' %>><label for="ecol-SILVER">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-silver.svg" alt="Silver"
+                      width="40" height="40"></div><span>Silver</span>
+                </label>
+              </li>
+              <li><input id="ecol-YELLOW" name="ecol" type="checkbox" value="YELLOW" <%=filters.ecol &&
+                  filters.ecol.indexOf('YELLOW')!=-1?'checked':'' %>><label for="ecol-YELLOW">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-yellow.svg" alt="Yellow"
+                      width="40" height="40"></div><span>Yellow</span>
+                </label></li>
+              <li><input id="ecol-OTHER" name="ecol" type="checkbox" value="OTHER" <%=filters.ecol &&
+                  filters.ecol.indexOf('OTHER')!=-1?'checked':'' %>><label for="ecol-OTHER">
+                  <div class="img_icon"><img loading="lazy"
+                      src="https://www.kijijiautos.ca/static/asset-catalog/images/ca/img-color-others.svg" alt="Other"
+                      width="40" height="40"></div><span>Other</span>
+                </label></li>
+            </ul>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Number of cylinders</label>
+            <label>from</label>
+            <select name="cylinders_from">
+              <option value="Min" <%=filters.cylinders_from=='Min' ?'selected':'' %>>Min</option>
+              <option value="3 cylinders" <%=filters.cylinders_from=='3 cylinders' ?'selected':'' %>>3 cylinders
+              </option>
+              <option value="4 cylinders" <%=filters.cylinders_from=='4 cylinders' ?'selected':'' %>>4 cylinders
+              </option>
+              <option value="5 cylinders" <%=filters.cylinders_from=='5 cylinders' ?'selected':'' %>>5 cylinders
+              </option>
+              <option value="6 cylinders" <%=filters.cylinders_from=='6 cylinders' ?'selected':'' %>>6 cylinders
+              </option>
+              <option value="8 cylinders" <%=filters.cylinders_from=='8 cylinders' ?'selected':'' %>>8 cylinders
+              </option>
+            </select>
+            <div style="display:inline-block;width:20px;"></div>
+
+            <label>to</label>
+            <select name="cylinders_to">
+              <option value="Max" <%=filters.cylinders_to=='Max' ?'selected':'' %>>Max</option>
+              <option value="3 cylinders" <%=filters.cylinders_to=='3 cylinders' ?'selected':'' %>>3 cylinders</option>
+              <option value="4 cylinders" <%=filters.cylinders_to=='4 cylinders' ?'selected':'' %>>4 cylinders</option>
+              <option value="5 cylinders" <%=filters.cylinders_to=='5 cylinders' ?'selected':'' %>>5 cylinders</option>
+              <option value="6 cylinders" <%=filters.cylinders_to=='6 cylinders' ?'selected':'' %>>6 cylinders</option>
+              <option value="8 cylinders" <%=filters.cylinders_to=='8 cylinders' ?'selected':'' %>>8 cylinders</option>
+
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+          <div class="separator">
+            <label>Engine size</label>
+            <label>from</label>
+            <select name="engin_size_from">
+              <option value="Min" <%=filters.engin_size_from=='Min' ?'selected':'' %>>Min</option>
+              <option value="500 cc" <%=filters.engin_size_from=='500 cc' ?'selected':'' %>>500 cc</option>
+              <option value="1000 cc" <%=filters.engin_size_from=='1000 cc' ?'selected':'' %>>1000 cc</option>
+              <option value="1500 cc" <%=filters.engin_size_from=='1500 cc' ?'selected':'' %>>1500 cc</option>
+              <option value="2000 cc" <%=filters.engin_size_from=='2000 cc' ?'selected':'' %>>2000 cc</option>
+              <option value="2500 cc" <%=filters.engin_size_from=='2500 cc' ?'selected':'' %>>2500 cc</option>
+              <option value="3000 cc" <%=filters.engin_size_from=='3000 cc' ?'selected':'' %>>3000 cc</option>
+              <option value="3500 cc" <%=filters.engin_size_from=='3500 cc' ?'selected':'' %>>3500 cc</option>
+              <option value="4000 cc" <%=filters.engin_size_from=='4000 cc' ?'selected':'' %>>4000 cc</option>
+              <option value="4500 cc" <%=filters.engin_size_from=='4500 cc' ?'selected':'' %>>4500 cc</option>
+              <option value="5000 cc" <%=filters.engin_size_from=='5000 cc' ?'selected':'' %>>5000 cc</option>
+              <option value="5500 cc" <%=filters.engin_size_from=='5500 cc' ?'selected':'' %>>5500 cc</option>
+              <option value="6000 cc" <%=filters.engin_size_from=='6000 cc' ?'selected':'' %>>6000 cc</option>
+            </select>
+
+            <label>to</label>
+            <select name="engin_size_to">
+              <option value="Max" <%=filters.engin_size_to=='Max' ?'selected':'' %>>Max</option>
+              <option value="500 cc" <%=filters.engin_size_to=='500 cc' ?'selected':'' %>>500 cc</option>
+              <option value="1000 cc" <%=filters.engin_size_to=='1000 cc' ?'selected':'' %>>1000 cc</option>
+              <option value="1500 cc" <%=filters.engin_size_to=='1500 cc' ?'selected':'' %>>1500 cc</option>
+              <option value="2000 cc" <%=filters.engin_size_to=='2000 cc' ?'selected':'' %>>2000 cc</option>
+              <option value="2500 cc" <%=filters.engin_size_to=='2500 cc' ?'selected':'' %>>2500 cc</option>
+              <option value="3000 cc" <%=filters.engin_size_to=='3000 cc' ?'selected':'' %>>3000 cc</option>
+              <option value="3500 cc" <%=filters.engin_size_to=='3500 cc' ?'selected':'' %>>3500 cc</option>
+              <option value="4000 cc" <%=filters.engin_size_to=='4000 cc' ?'selected':'' %>>4000 cc</option>
+              <option value="4500 cc" <%=filters.engin_size_to=='4500 cc' ?'selected':'' %>>4500 cc</option>
+              <option value="5000 cc" <%=filters.engin_size_to=='5000 cc' ?'selected':'' %>>5000 cc</option>
+              <option value="5500 cc" <%=filters.engin_size_to=='5500 cc' ?'selected':'' %>>5500 cc</option>
+              <option value="6000 cc" <%=filters.engin_size_to=='6000 cc' ?'selected':'' %>>6000 cc</option>
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Power</label>
+            <label>from</label>
+            <select name="power_from">
+              <option value="Min" <%=filters.power_from=='Min' ?'selected':'' %>>Min</option>
+              <option value="50 kW" <%=filters.power_from=='50 kW' ?'selected':'' %>>50 kW</option>
+              <option value="100 kW" <%=filters.power_from=='100 kW' ?'selected':'' %>>100 kW</option>
+              <option value="150 kW" <%=filters.power_from=='150 kW' ?'selected':'' %>>150 kW</option>
+              <option value="200 kW" <%=filters.power_from=='200 kW' ?'selected':'' %>>200 kW</option>
+              <option value="250 kW" <%=filters.power_from=='250 kW' ?'selected':'' %>>250 kW</option>
+              <option value="300 kW" <%=filters.power_from=='300 kW' ?'selected':'' %>>300 kW</option>
+            </select>
+
+            <label>to</label>
+            <select name="power_to">
+              <option value="Max" <%=filters.power_to=='Max' ?'selected':'' %>>Max</option>
+              <option value="50 kW" <%=filters.power_to=='50 kW' ?'selected':'' %>>50 kW</option>
+              <option value="100 kW" <%=filters.power_to=='100 kW' ?'selected':'' %>>100 kW</option>
+              <option value="150 kW" <%=filters.power_to=='150 kW' ?'selected':'' %>>150 kW</option>
+              <option value="200 kW" <%=filters.power_to=='200 kW' ?'selected':'' %>>200 kW</option>
+              <option value="250 kW" <%=filters.power_to=='250 kW' ?'selected':'' %>>250 kW</option>
+              <option value="300 kW" <%=filters.power_to=='300 kW' ?'selected':'' %>>300 kW</option>
+
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Seat count</label>
+            <label>from</label>
+            <select name="seat_from">
+              <option value="Min" <%=filters.seat_from=='Min' ?'selected':'' %>>Min</option>
+              <option value="2 seats" <%=filters.seat_from=='2 seats' ?'selected':'' %>>2 seats</option>
+              <option value="3 seats" <%=filters.seat_from=='3 seats' ?'selected':'' %>>3 seats</option>
+              <option value="4 seats" <%=filters.seat_from=='4 seats' ?'selected':'' %>>4 seats</option>
+              <option value="5 seats" <%=filters.seat_from=='5 seats' ?'selected':'' %>>5 seats</option>
+              <option value="6 seats" <%=filters.seat_from=='6 seats' ?'selected':'' %>>6 seats</option>
+              <option value="7 seats" <%=filters.seat_from=='7 seats' ?'selected':'' %>>7 seats</option>
+              <option value="8 seats" <%=filters.seat_from=='8 seats' ?'selected':'' %>>8 seats</option>
+              <option value="9 seats" <%=filters.seat_from=='9 seats' ?'selected':'' %>>9 seats</option>
+            </select>
+
+            <label>to</label>
+            <select name="seat_to">
+              <option value="Max" <%=filters.seat_to=='Max' ?'selected':'' %>>Max</option>
+              <option value="2 seats" <%=filters.seat_to=='2 seats' ?'selected':'' %>>2 seats</option>
+              <option value="3 seats" <%=filters.seat_to=='3 seats' ?'selected':'' %>>3 seats</option>
+              <option value="4 seats" <%=filters.seat_to=='4 seats' ?'selected':'' %>>4 seats</option>
+              <option value="5 seats" <%=filters.seat_to=='5 seats' ?'selected':'' %>>5 seats</option>
+              <option value="6 seats" <%=filters.seat_to=='6 seats' ?'selected':'' %>>6 seats</option>
+              <option value="7 seats" <%=filters.seat_to=='7 seats' ?'selected':'' %>>7 seats</option>
+              <option value="8 seats" <%=filters.seat_to=='8 seats' ?'selected':'' %>>8 seats</option>
+              <option value="9 seats" <%=filters.seat_to=='9 seats' ?'selected':'' %>>9 seats</option>
+
+            </select>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Doors</label>
+            <label>
+              <input type='hidden' value='0' name='doors_two_or_three'>
+              <input type="checkbox" name="doors_two_or_three" value="1" <%=filters.doors_two_or_three==1?'checked':''
+                %>>
+              2/3 doors
+            </label>
+            <label>
+              <input type='hidden' value='0' name='doors_four_or_five'>
+              <input type="checkbox" name="doors_four_or_five" value="1" <%=filters.doors_four_or_five==1?'checked':''
+                %>>
+              4/5 doors
+            </label>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+          <div class="separator">
+            <label>Video/photos</label>
+            <label>
+              <input type='hidden' value='0' name='with_video'>
+              <input type="checkbox" name="with_video" value="1" <%=filters.with_video==1?'checked':'' %>>
+              With video
+            </label>
+            <label>
+              <input type='hidden' value='0' name='with_photo'>
+              <input type="checkbox" name="with_photo" value="1" <%=filters.with_photo==1?'checked':'' %>>
+              With photos
+            </label>
+            <button class="btn btn-primary">Submit</button>
+          </div>
+
+        </div>
+      </div>
+    </form>
+    <form method="post" action="/" class="text-center">
+      <input type="hidden" name="show_results" value="show">
+      <button class="btn btn-info showResultsBtn" style="color:white">
+        <%= filters.results_button %>
+      </button>
+    </form>
+  </div>
+
+    <% } %>
+
+    <div class="container mt-5" id="results_area">
+      <div class="row">
+        <!-- Product Card -->
+        <div class="col-md-1"></div>
+        <div class="col-md-10 mb-4">
+            
+
+          <% if(filters!=null && filters.results !== undefined && filters.start_conversation == undefined){ %>
+            <button class="multiSendBtn btn btn-primary d-none"></button>
+          <form method="POST" action="/" class="text-center pb-3">
+            <input type="hidden" name="reset" value="">
+            <button class="btn btn-info">Reset Search</button>
+          </form>
+            <h3 class="h3">Listing <%= filters.results.length %> results</h3>
+            <script>document.querySelector("#results_area").scrollIntoView();</script>
+            <script>
+            function slideNext(elm){
+              let tmp_cls = jQuery(elm).parent().find('.show').attr('class');
+              let tmp_idx = tmp_cls.indexOf('n-')+2;
+              let no = Number(tmp_cls.substr(tmp_idx,tmp_cls.indexOf(' ',tmp_idx+1) -tmp_idx).trim());
+              
+              let slides = jQuery(elm).parent().find('.imgSlide');
+              let nextNumb = (no+1) % slides.length;
+
+              jQuery(slides[no]).removeClass('show');
+              jQuery(slides[nextNumb]).addClass('show');
+            }
+            function slidePrev(elm){
+              let tmp_cls = jQuery(elm).parent().find('.show').attr('class');
+              let tmp_idx = tmp_cls.indexOf('n-')+2;
+              let no = Number(tmp_cls.substr(tmp_idx,tmp_cls.indexOf(' ',tmp_idx+1) -tmp_idx).trim());
+              
+              let slides = jQuery(elm).parent().find('.imgSlide');
+              let prevNumb = (no-1) <0 ? slides.length-1:(no-1);
+
+              jQuery(slides[no]).removeClass('show');
+              jQuery(slides[prevNumb]).addClass('show');
+            }
+            </script>
+            <% for(var i=0; i < filters.results.length; i++) { %>
+              <div class="card">
+                <div class="row no-gutters">
+                  <!-- Image on the Left -->
+                  <div class="col-md-4 relative">
+                    <!-- Slideshow Container -->
+                    <div class="slideshow-container">
+                      <% for (let j = 0; j < filters.results[i].images.length; j++) { %>
+                        <div class="imgSlide n-<%= j %> <%= j==0?'show ':'' %>fade">
+                          <img
+                            loading="lazy"
+                            src="https://<%= filters.results[i].images[j].uri %>?rule=move-340-webp"
+                            class="card-img"
+                            alt="Product Image"
+                          />
+                        </div>
+                      <% } %>
+            
+                      <!-- Previous and Next Buttons -->
+                      <a class="prev px-3 btn btn-primary" onclick="slidePrev(this)">&#10094;</a>
+                      <a class="next px-3 btn btn-primary" onclick="slideNext(this)">&#10095;</a>
+                    </div>
+                  </div>
+                  <!-- Content on the Right -->
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <div class="mb-3">
+                        <label class="p-2 bg-gray-100 rounded mb-3 border">
+                          <input type="checkbox" name="multi_conv" class="w-5 h-5 mr-2 align-middle" value="<%= filters.results[i].url %>">
+                          Start a conversation
+                        </label>
+                      </div>
+                      <!-- Product Title -->
+                      <h5 class="card-title">
+                        <%= filters.results[i].title %>
+                      </h5>
+                      <% let url = filters.results[i].url;
+                      let idx = url.indexOf('/vip/')+5;
+                      let ad_id = url.substr(idx);
+                      let isMessageSent = false;
+                      for(var j=0;j<filters.msg_ids.length;j++){
+                        if(filters.msg_ids[j] == ad_id){
+                          isMessageSent = true;
+                          break;
+                        }
+                      }
+                      %>
+                        <%- isMessageSent ? '<div class="alert alert-success">✅ Conversation is started</div>':'<div class="alert alert-warning">🟥 Conversation is not started</div>' %>
+                      <!-- Product Price -->
+                      <p class="card-text price">
+                        <%= filters.results[i].price %> <%= filters.results[i].currency %>
+                      </p>
+                      <!-- Product description -->
+                      <p class="card-text">
+                      <%- filters.results[i].description %>
+                      </p>
+                      <!-- Product Details -->
+                      <p class="card-text">
+                      <ul class="desc">
+                        <li>
+                          <svg width="18" height="19" viewBox="0 0 18 19" data-icon="true" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M14.9653 11.1531C15.9995 10.7056 17.228 11.1508 17.7445 12.1741C18.0103 12.7013 18.051 13.2991 17.8585 13.8573C17.6663 14.4156 17.2663 14.8616 16.732 15.1128L10.3178 17.9388C10.2235 17.9806 10.1215 18.0021 10.0183 18.0023L0.766536 18.0351C0.350786 18.0351 0.0152856 17.7011 0.0137856 17.2878C0.0122856 16.8736 0.347036 16.5366 0.761036 16.5351L9.85629 16.5028L16.1105 13.7481C16.258 13.6783 16.381 13.5408 16.4403 13.3688C16.4998 13.1966 16.4873 13.0123 16.4053 12.8498C16.246 12.5338 15.8665 12.3978 15.5425 12.5373L9.53454 14.9511C9.49879 14.9656 9.46204 14.9741 9.42554 14.9826C9.41629 14.9848 9.40754 14.9886 9.39829 14.9903C9.36804 14.9961 9.33804 14.9976 9.30804 14.9996L9.25404 15.0051L5.00779 15.0201C4.59204 15.0201 4.25654 14.6861 4.25504 14.2728C4.25354 13.8583 4.58829 13.5216 5.00229 13.5201L8.93804 13.5061L9.70879 12.7301C9.72604 12.7126 9.77129 12.6671 9.73729 12.5856C9.70304 12.5033 9.64104 12.5013 9.61429 12.5038L2.55779 12.5288L1.28204 13.8136C0.990286 14.1073 0.515286 14.1093 0.221536 13.8173C-0.0724643 13.5256 -0.0739644 13.0508 0.217786 12.7568L1.71229 11.2516C1.85254 11.1101 2.04279 11.0306 2.24179 11.0298L9.60904 11.0038C10.2753 11.0038 10.866 11.3971 11.1213 12.0068C11.208 12.2146 11.246 12.4321 11.2448 12.6476L14.9653 11.1531ZM10.627 0.000206363C10.6573 -0.000793637 10.6908 0.0019563 10.7223 0.0059563C11.604 0.115706 12.365 0.683456 12.7578 1.52421L13.527 3.17071C14.3713 3.52071 14.9685 4.35146 14.9718 5.32121L14.977 6.80396C14.9773 6.86496 14.9728 6.92521 14.9663 6.98496H14.9778L14.985 9.06821C14.9863 9.57396 14.595 9.98621 14.1133 9.98796L13.8628 9.98871C13.5905 9.98871 13.3405 9.86271 13.174 9.64296C13.0525 9.48271 12.9855 9.28096 12.985 9.07471L12.9825 8.35396L4.98251 8.38221L4.98501 9.10371C4.98626 9.35271 4.88901 9.59521 4.71851 9.76746C4.55576 9.93171 4.34101 10.0225 4.11351 10.0232L3.86376 10.0242C3.38001 10.0242 2.98776 9.61571 2.98501 9.11171L2.97776 7.02721H2.98951C2.98226 6.96721 2.97751 6.90721 2.97726 6.84596L2.97175 5.36346C2.96851 4.39371 3.55976 3.55846 4.40151 3.20271L5.15901 1.55096C5.54601 0.707456 6.30276 0.134456 7.18351 0.0184564C7.21526 0.0142064 7.24726 0.0119563 7.27901 0.0119563L10.627 0.000206363ZM12.6358 4.49321H12.6328L5.30501 4.51896C4.84426 4.52071 4.47026 4.89721 4.47176 5.35821L4.47726 6.84071C4.47726 6.86121 4.50026 6.88371 4.52026 6.88371L13.434 6.85246L13.4543 6.8457C13.467 6.83746 13.477 6.82296 13.477 6.80946L13.4718 5.32646C13.47 4.86646 13.0953 4.49321 12.6358 4.49321ZM6.47071 5.01488C6.88321 5.01338 7.22171 5.34963 7.22321 5.76213C7.22471 6.17488 6.88846 6.51338 6.47596 6.51488C6.06346 6.51638 5.72471 6.18013 5.72321 5.76763C5.72171 5.35488 6.05821 5.01638 6.47071 5.01488ZM11.4707 4.9973C11.8832 4.99581 12.2217 5.33206 12.2232 5.74456C12.2247 6.15706 11.8882 6.49581 11.476 6.4973C11.0635 6.49881 10.7247 6.16231 10.7232 5.74981C10.7217 5.33731 11.0582 4.99881 11.4707 4.9973ZM10.5778 1.50046L7.33901 1.51171C6.99001 1.57271 6.68676 1.81871 6.52226 2.17646L6.13701 3.01621L11.79 2.99596L11.3988 2.15921C11.232 1.80246 10.9273 1.55871 10.5778 1.50046Z" fill="#2D2F3B"></path></svg>
+                          <span>Condition</span>
+                        <%- filters.results[i].condition %>
+                      </li>
+                        <li>
+                          <svg width="18" height="18" viewBox="0 0 18 18" data-icon="true" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M9 0C13.9627 0 18 4.0375 18 9C18 9.53675 17.9503 10.0615 17.8598 10.5723C17.858 10.5848 17.859 10.5972 17.8568 10.6097C17.8545 10.6215 17.8498 10.632 17.847 10.6438C17.2227 14.0118 14.7178 16.7262 11.4653 17.6542C11.445 17.6612 11.4243 17.666 11.4038 17.6715C10.638 17.8842 9.8325 18 9 18C8.1675 18 7.362 17.8842 6.59625 17.6715C6.57575 17.666 6.555 17.6612 6.535 17.6542C3.28225 16.7262 0.7775 14.0118 0.15325 10.6435L0.14325 10.6097C0.14125 10.5972 0.14225 10.5848 0.1405 10.5723C0.0497501 10.0615 0 9.53675 0 9C0 4.0375 4.0375 0 9 0ZM8.992 6.75C6.469 6.77725 3.96975 7.205 1.56725 8.01225C1.5245 8.33575 1.5 8.665 1.5 9C1.5 9.214 1.51125 9.425 1.52875 9.6345C3.251 9.4935 4.76925 9.9635 5.86275 10.9915C6.7755 11.8492 7.77725 13.4665 7.59375 16.366C8.0495 16.4527 8.51925 16.5 9 16.5C9.48075 16.5 9.9505 16.4527 10.4062 16.366C10.223 13.4665 11.2247 11.8492 12.1372 10.9915C13.2308 9.96375 14.7485 9.494 16.4713 9.6345C16.4888 9.42525 16.5 9.214 16.5 9C16.5 8.665 16.4757 8.33575 16.433 8.01225C14.03 7.20525 11.53 6.7775 8.992 6.75ZM16.1917 11.1245C14.966 11.0588 13.9087 11.385 13.1645 12.0843C12.278 12.918 11.8442 14.2342 11.8877 15.9212C13.9525 15.0565 15.5495 13.2938 16.1917 11.1245ZM2.06834 11.1164L1.8085 11.1245C2.45025 13.2938 4.04775 15.0565 6.11225 15.9212C6.15575 14.2342 5.72225 12.918 4.8355 12.0843C4.0915 11.385 3.03325 11.0588 1.8085 11.1245L2.06834 11.1164ZM9 8C9.8285 8 10.5 8.6715 10.5 9.5C10.5 10.3285 9.8285 11 9 11C8.1715 11 7.5 10.3285 7.5 9.5C7.5 8.6715 8.1715 8 9 8ZM9 1.5C5.81575 1.5 3.0905 3.49575 2.00425 6.3015C4.27375 5.632 6.617 5.2755 8.992 5.25C11.3805 5.27575 13.7262 5.63225 15.996 6.30175C14.91 3.496 12.1845 1.5 9 1.5Z" fill="#2D2F3B"></path></svg>
+                          <span>Trim</span>
+                          <%- filters.results[i].trim %>
+                        </li>
+                        <li>
+                          <svg width="18" height="18" viewBox="0 0 18 18" data-icon="true" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M9 0C13.9627 0 18 4.0375 18 9C18 9.53675 17.9503 10.0615 17.8598 10.5723C17.858 10.5848 17.859 10.5972 17.8568 10.6097C17.8545 10.6215 17.8498 10.632 17.847 10.6438C17.2227 14.0118 14.7178 16.7262 11.4653 17.6542C11.445 17.6612 11.4243 17.666 11.4038 17.6715C10.638 17.8842 9.8325 18 9 18C8.1675 18 7.362 17.8842 6.59625 17.6715C6.57575 17.666 6.555 17.6612 6.535 17.6542C3.28225 16.7262 0.7775 14.0118 0.15325 10.6435L0.14325 10.6097C0.14125 10.5972 0.14225 10.5848 0.1405 10.5723C0.0497501 10.0615 0 9.53675 0 9C0 4.0375 4.0375 0 9 0ZM8.992 6.75C6.469 6.77725 3.96975 7.205 1.56725 8.01225C1.5245 8.33575 1.5 8.665 1.5 9C1.5 9.214 1.51125 9.425 1.52875 9.6345C3.251 9.4935 4.76925 9.9635 5.86275 10.9915C6.7755 11.8492 7.77725 13.4665 7.59375 16.366C8.0495 16.4527 8.51925 16.5 9 16.5C9.48075 16.5 9.9505 16.4527 10.4062 16.366C10.223 13.4665 11.2247 11.8492 12.1372 10.9915C13.2308 9.96375 14.7485 9.494 16.4713 9.6345C16.4888 9.42525 16.5 9.214 16.5 9C16.5 8.665 16.4757 8.33575 16.433 8.01225C14.03 7.20525 11.53 6.7775 8.992 6.75ZM16.1917 11.1245C14.966 11.0588 13.9087 11.385 13.1645 12.0843C12.278 12.918 11.8442 14.2342 11.8877 15.9212C13.9525 15.0565 15.5495 13.2938 16.1917 11.1245ZM2.06834 11.1164L1.8085 11.1245C2.45025 13.2938 4.04775 15.0565 6.11225 15.9212C6.15575 14.2342 5.72225 12.918 4.8355 12.0843C4.0915 11.385 3.03325 11.0588 1.8085 11.1245L2.06834 11.1164ZM9 8C9.8285 8 10.5 8.6715 10.5 9.5C10.5 10.3285 9.8285 11 9 11C8.1715 11 7.5 10.3285 7.5 9.5C7.5 8.6715 8.1715 8 9 8ZM9 1.5C5.81575 1.5 3.0905 3.49575 2.00425 6.3015C4.27375 5.632 6.617 5.2755 8.992 5.25C11.3805 5.27575 13.7262 5.63225 15.996 6.30175C14.91 3.496 12.1845 1.5 9 1.5Z" fill="#2D2F3B"></path></svg>
+                          <span>Kilometres</span>
+                          <%- filters.results[i].km %>
+                        </li>
+                        <li>
+                          <svg class="b1rIwt" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" data-icon="true"><path fill="currentColor" fill-rule="evenodd" d="M16.5 15v2.5h-2.849l-1-1.5H7.5v-4.44l1.06-1.06h6.88l1.06 1.06V13h3v2h-3zm3.75-6a0.75 0.75 0 00-0.75 0.75v1.75H18v-0.56L16.06 9h-3.31V7.5h2.5a0.75 0.75 0 100-1.5h-6.5a0.75 0.75 0 100 1.5h2.5V9H7.94L6 10.94v2.43a0.748 0.748 0 00-0.188-0.026H4.5v-2a0.75 0.75 0 10-1.5 0v5.5a0.75 0.75 0 101.5 0v-2h1.313A0.748 0.748 0 006 14.817V17.5h5.849l1 1.5H18v-2.5h1.5v1.75a0.75 0.75 0 101.5 0v-8.5A0.75 0.75 0 0020.25 9z" clip-rule="evenodd"></path></svg>
+                          <span>Drivetrain</span>
+                          <%- filters.results[i].drivetrain %>
+                        </li>
+                        <li>
+                          <svg class="b1rIwt" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" data-icon="true"><path fill="currentColor" fill-rule="evenodd" d="M21 5a2 2 0 10-2.75 1.853v4.397h-5.5V6.853a2 2 0 10-1.5 0v4.397h-5.5V6.853a2 2 0 10-1.5 0v10.294a2 2 0 101.5 0V12.75h5.5v4.397a2 2 0 101.5 0V12.75h7V6.853A2 2 0 0021 5z" clip-rule="evenodd"></path></svg>
+                          <span>Transmission</span>
+                          <%- filters.results[i].transmission %>
+                        </li>
+                        <li>
+                          <svg class="b1rIwt" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" data-icon="true"><path fill="currentColor" d="M12 7.25A0.75 0.75 0 0111.25 8h-4.5a0.75 0.75 0 110-1.5h4.5A0.75 0.75 0 0112 7.25z"></path><path fill="currentColor" fill-rule="evenodd" d="M20.92 10.335L20.089 12h0.162a0.75 0.75 0 110 1.5H20V19c0 1.103-0.897 2-2 2s-2-0.897-2-2V9a1.501 1.501 0 00-1-1.412V20.25A0.75 0.75 0 0114.25 21H3.75A0.75 0.75 0 013 20.25V3.75A0.75 0.75 0 013.75 3h10.5A0.75 0.75 0 0115 3.75v2.295A3.002 3.002 0 0117.5 9v10a0.5 0.5 0 001 0v-7a0.751 0.751 0 010.079-0.335l1-2a0.751 0.751 0 011.342 0.67zM13.5 19.5h-9v-8h9v8zm0-9.5h-9V4.5h9V10z" clip-rule="evenodd"></path></svg>
+                          <span>Fuel type</span>
+                          <%- filters.results[i].fuel %>
+                        </li>
+                      </ul>
+                      </p>
+                      <p>
+                        <span class="small">
+                          publish date:
+                        </span><%- filters.results[i].date_posted %>
+                      </p>
+                      <!-- Start Conversation Button -->
+                      <form method="POST" action="/" class="text-center pb-3">
+                        <input type="hidden" name="start_conversation" value="<%- filters.results[i].url %>">
+
+                          <a href="<%- filters.results[i].url %>" target="_blank" class="btn btn-primary">Go to page</a>
+                          <button class="btn btn-primary">Start Conversation</button>
+
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <% }//end for %>
+              <script>
+                jQuery('[name="multi_conv"]').on('change',function(){
+                  var els = jQuery('[name="multi_conv"]:checked');
+                  if(els.length>0){
+                      jQuery('.multiSendBtn').removeClass("d-none");
+                      jQuery('.multiSendBtn').text("Send ("+els.length+")");
+                  }else{
+                      jQuery('.multiSendBtn').addClass("d-none");
+                  }
+
+              });
+              function sendAndCheckProgress(urls){
+                $.post('/queueMessages?'+new Date().getTime(), {
+                    urls: urls,
+                    action:'add',
+                    // Add more data as needed
+                }, function(response) {              
+                  console.log(response);
+                  if(response.status == 'success'){
+                    var els = jQuery('[name="multi_conv"]:checked');
+                      for(var i=0;i<els.length;i++){
+                          jQuery(els[i]).parent().text("Queued");
+                      }
+                      jQuery('.multiSendBtn').addClass("d-none");
+
+                      // alert('Messages are queued successfully');
+                  }else{
+                    console.log(response);
+                  }
+                }).fail(function(xhr, status, error) {
+                    // Handle errors here
+                    console.error('Error:', status, error);
+                    clearInterval(ival2);
+                    jQuery('[name="multi_conv"],.multiSendBtn').attr('disabled',false);
+                    jQuery('.multiSendBtn').text("Fail, try again");
+                });
+              }
+              jQuery('.multiSendBtn').on('click',function(){
+                  var els = jQuery('[name="multi_conv"]:checked');
+                  var urls = [];
+                  for(var i=0;i<els.length;i++){
+                    urls.push(jQuery(els[i]).attr('value'));
+                  }
+                  jQuery('.multiSendBtn').attr('disabled','disabled');
+                  jQuery('.multiSendBtn').text("Sending ...");
+                  sendAndCheckProgress(urls);
+              });
+              </script>
+                <% }//end if %>
+
+                <% if (filters!=null && filters.start_conversation != undefined){ %>
+
+                  <form method="POST" action="/" class="text-center pb-3">
+
+                    <input type="hidden" name="back_to_search_results" value="">
+                    <button class="btn btn-info">Back to search results</button>
+                  </form>
+                <% }//end if %>
+                
+
+                <% if (filters!=null && filters.start_conversation != undefined && (filters.isLogedin === true || filters.isLoginNeeded === false)) { %>
+                  <h2 class="h2 text-center">Message</h2>
+                    <% if(filters.sending_msg_errors !== undefined && filters.sending_msg_errors != ''){ %>
+                      <div class="alert alert-danger "><%- filters.sending_msg_errors %></div>
+                    <% } else if(filters.send_feedback != undefined && filters.send_feedback!=''){
+                      %><div class="alert alert-success p-4"><strong><%= filters.send_feedback %></div><%
+                    } %></strong>
+                  <% if (typeof filters.start_conversation == 'object') { %>
+                    <div class="card">
+                    <div class="row no-gutters">
+                      <!-- Image on the Left -->
+                      <div class="col-md-12">
+                        <img src="https://<%= filters.start_conversation.images.length > 0 ? filters.start_conversation.images[0].uri : 'www.kijijiautos.ca/static/49fec29a95e822d11920.svg' %>?rule=move-640-webp" class="card-img" loading="lazy" alt="Product Image">
+                      </div>
+                      <!-- Content on the Right -->
+                      <div class="col-md-8">
+                        <div class="card-body">
+                          <!-- Product Title -->
+                          <h5 class="card-title">
+                            <%= filters.start_conversation.title %>
+                          </h5>
+                          <!-- Product Price -->
+                          <p class="card-text price">
+                            <%= filters.start_conversation.price %> <%= filters.start_conversation.currency %>
+                          </p>
+                          <!-- Product description -->
+                          <p class="card-text">
+                          <%- filters.start_conversation.description %>
+                          </p>
+                          <!-- Product Details -->
+                          <p class="card-text">
+                          <ul class="desc">
+                            <li>
+                              <svg width="18" height="19" viewBox="0 0 18 19" data-icon="true" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M14.9653 11.1531C15.9995 10.7056 17.228 11.1508 17.7445 12.1741C18.0103 12.7013 18.051 13.2991 17.8585 13.8573C17.6663 14.4156 17.2663 14.8616 16.732 15.1128L10.3178 17.9388C10.2235 17.9806 10.1215 18.0021 10.0183 18.0023L0.766536 18.0351C0.350786 18.0351 0.0152856 17.7011 0.0137856 17.2878C0.0122856 16.8736 0.347036 16.5366 0.761036 16.5351L9.85629 16.5028L16.1105 13.7481C16.258 13.6783 16.381 13.5408 16.4403 13.3688C16.4998 13.1966 16.4873 13.0123 16.4053 12.8498C16.246 12.5338 15.8665 12.3978 15.5425 12.5373L9.53454 14.9511C9.49879 14.9656 9.46204 14.9741 9.42554 14.9826C9.41629 14.9848 9.40754 14.9886 9.39829 14.9903C9.36804 14.9961 9.33804 14.9976 9.30804 14.9996L9.25404 15.0051L5.00779 15.0201C4.59204 15.0201 4.25654 14.6861 4.25504 14.2728C4.25354 13.8583 4.58829 13.5216 5.00229 13.5201L8.93804 13.5061L9.70879 12.7301C9.72604 12.7126 9.77129 12.6671 9.73729 12.5856C9.70304 12.5033 9.64104 12.5013 9.61429 12.5038L2.55779 12.5288L1.28204 13.8136C0.990286 14.1073 0.515286 14.1093 0.221536 13.8173C-0.0724643 13.5256 -0.0739644 13.0508 0.217786 12.7568L1.71229 11.2516C1.85254 11.1101 2.04279 11.0306 2.24179 11.0298L9.60904 11.0038C10.2753 11.0038 10.866 11.3971 11.1213 12.0068C11.208 12.2146 11.246 12.4321 11.2448 12.6476L14.9653 11.1531ZM10.627 0.000206363C10.6573 -0.000793637 10.6908 0.0019563 10.7223 0.0059563C11.604 0.115706 12.365 0.683456 12.7578 1.52421L13.527 3.17071C14.3713 3.52071 14.9685 4.35146 14.9718 5.32121L14.977 6.80396C14.9773 6.86496 14.9728 6.92521 14.9663 6.98496H14.9778L14.985 9.06821C14.9863 9.57396 14.595 9.98621 14.1133 9.98796L13.8628 9.98871C13.5905 9.98871 13.3405 9.86271 13.174 9.64296C13.0525 9.48271 12.9855 9.28096 12.985 9.07471L12.9825 8.35396L4.98251 8.38221L4.98501 9.10371C4.98626 9.35271 4.88901 9.59521 4.71851 9.76746C4.55576 9.93171 4.34101 10.0225 4.11351 10.0232L3.86376 10.0242C3.38001 10.0242 2.98776 9.61571 2.98501 9.11171L2.97776 7.02721H2.98951C2.98226 6.96721 2.97751 6.90721 2.97726 6.84596L2.97175 5.36346C2.96851 4.39371 3.55976 3.55846 4.40151 3.20271L5.15901 1.55096C5.54601 0.707456 6.30276 0.134456 7.18351 0.0184564C7.21526 0.0142064 7.24726 0.0119563 7.27901 0.0119563L10.627 0.000206363ZM12.6358 4.49321H12.6328L5.30501 4.51896C4.84426 4.52071 4.47026 4.89721 4.47176 5.35821L4.47726 6.84071C4.47726 6.86121 4.50026 6.88371 4.52026 6.88371L13.434 6.85246L13.4543 6.8457C13.467 6.83746 13.477 6.82296 13.477 6.80946L13.4718 5.32646C13.47 4.86646 13.0953 4.49321 12.6358 4.49321ZM6.47071 5.01488C6.88321 5.01338 7.22171 5.34963 7.22321 5.76213C7.22471 6.17488 6.88846 6.51338 6.47596 6.51488C6.06346 6.51638 5.72471 6.18013 5.72321 5.76763C5.72171 5.35488 6.05821 5.01638 6.47071 5.01488ZM11.4707 4.9973C11.8832 4.99581 12.2217 5.33206 12.2232 5.74456C12.2247 6.15706 11.8882 6.49581 11.476 6.4973C11.0635 6.49881 10.7247 6.16231 10.7232 5.74981C10.7217 5.33731 11.0582 4.99881 11.4707 4.9973ZM10.5778 1.50046L7.33901 1.51171C6.99001 1.57271 6.68676 1.81871 6.52226 2.17646L6.13701 3.01621L11.79 2.99596L11.3988 2.15921C11.232 1.80246 10.9273 1.55871 10.5778 1.50046Z" fill="#2D2F3B"></path></svg>
+                            <%- filters.start_conversation.condition %>
+                              <span>Condition</span>
+                            </li>
+                            <li>
+                              <svg width="18" height="18" viewBox="0 0 18 18" data-icon="true" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M9 0C13.9627 0 18 4.0375 18 9C18 9.53675 17.9503 10.0615 17.8598 10.5723C17.858 10.5848 17.859 10.5972 17.8568 10.6097C17.8545 10.6215 17.8498 10.632 17.847 10.6438C17.2227 14.0118 14.7178 16.7262 11.4653 17.6542C11.445 17.6612 11.4243 17.666 11.4038 17.6715C10.638 17.8842 9.8325 18 9 18C8.1675 18 7.362 17.8842 6.59625 17.6715C6.57575 17.666 6.555 17.6612 6.535 17.6542C3.28225 16.7262 0.7775 14.0118 0.15325 10.6435L0.14325 10.6097C0.14125 10.5972 0.14225 10.5848 0.1405 10.5723C0.0497501 10.0615 0 9.53675 0 9C0 4.0375 4.0375 0 9 0ZM8.992 6.75C6.469 6.77725 3.96975 7.205 1.56725 8.01225C1.5245 8.33575 1.5 8.665 1.5 9C1.5 9.214 1.51125 9.425 1.52875 9.6345C3.251 9.4935 4.76925 9.9635 5.86275 10.9915C6.7755 11.8492 7.77725 13.4665 7.59375 16.366C8.0495 16.4527 8.51925 16.5 9 16.5C9.48075 16.5 9.9505 16.4527 10.4062 16.366C10.223 13.4665 11.2247 11.8492 12.1372 10.9915C13.2308 9.96375 14.7485 9.494 16.4713 9.6345C16.4888 9.42525 16.5 9.214 16.5 9C16.5 8.665 16.4757 8.33575 16.433 8.01225C14.03 7.20525 11.53 6.7775 8.992 6.75ZM16.1917 11.1245C14.966 11.0588 13.9087 11.385 13.1645 12.0843C12.278 12.918 11.8442 14.2342 11.8877 15.9212C13.9525 15.0565 15.5495 13.2938 16.1917 11.1245ZM2.06834 11.1164L1.8085 11.1245C2.45025 13.2938 4.04775 15.0565 6.11225 15.9212C6.15575 14.2342 5.72225 12.918 4.8355 12.0843C4.0915 11.385 3.03325 11.0588 1.8085 11.1245L2.06834 11.1164ZM9 8C9.8285 8 10.5 8.6715 10.5 9.5C10.5 10.3285 9.8285 11 9 11C8.1715 11 7.5 10.3285 7.5 9.5C7.5 8.6715 8.1715 8 9 8ZM9 1.5C5.81575 1.5 3.0905 3.49575 2.00425 6.3015C4.27375 5.632 6.617 5.2755 8.992 5.25C11.3805 5.27575 13.7262 5.63225 15.996 6.30175C14.91 3.496 12.1845 1.5 9 1.5Z" fill="#2D2F3B"></path></svg>
+                            <%- filters.start_conversation.trim %>
+                              <span>Trim</span>
+                            </li>
+                            <li>
+                              <svg width="18" height="18" viewBox="0 0 18 18" data-icon="true" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M9 0C13.9627 0 18 4.0375 18 9C18 9.53675 17.9503 10.0615 17.8598 10.5723C17.858 10.5848 17.859 10.5972 17.8568 10.6097C17.8545 10.6215 17.8498 10.632 17.847 10.6438C17.2227 14.0118 14.7178 16.7262 11.4653 17.6542C11.445 17.6612 11.4243 17.666 11.4038 17.6715C10.638 17.8842 9.8325 18 9 18C8.1675 18 7.362 17.8842 6.59625 17.6715C6.57575 17.666 6.555 17.6612 6.535 17.6542C3.28225 16.7262 0.7775 14.0118 0.15325 10.6435L0.14325 10.6097C0.14125 10.5972 0.14225 10.5848 0.1405 10.5723C0.0497501 10.0615 0 9.53675 0 9C0 4.0375 4.0375 0 9 0ZM8.992 6.75C6.469 6.77725 3.96975 7.205 1.56725 8.01225C1.5245 8.33575 1.5 8.665 1.5 9C1.5 9.214 1.51125 9.425 1.52875 9.6345C3.251 9.4935 4.76925 9.9635 5.86275 10.9915C6.7755 11.8492 7.77725 13.4665 7.59375 16.366C8.0495 16.4527 8.51925 16.5 9 16.5C9.48075 16.5 9.9505 16.4527 10.4062 16.366C10.223 13.4665 11.2247 11.8492 12.1372 10.9915C13.2308 9.96375 14.7485 9.494 16.4713 9.6345C16.4888 9.42525 16.5 9.214 16.5 9C16.5 8.665 16.4757 8.33575 16.433 8.01225C14.03 7.20525 11.53 6.7775 8.992 6.75ZM16.1917 11.1245C14.966 11.0588 13.9087 11.385 13.1645 12.0843C12.278 12.918 11.8442 14.2342 11.8877 15.9212C13.9525 15.0565 15.5495 13.2938 16.1917 11.1245ZM2.06834 11.1164L1.8085 11.1245C2.45025 13.2938 4.04775 15.0565 6.11225 15.9212C6.15575 14.2342 5.72225 12.918 4.8355 12.0843C4.0915 11.385 3.03325 11.0588 1.8085 11.1245L2.06834 11.1164ZM9 8C9.8285 8 10.5 8.6715 10.5 9.5C10.5 10.3285 9.8285 11 9 11C8.1715 11 7.5 10.3285 7.5 9.5C7.5 8.6715 8.1715 8 9 8ZM9 1.5C5.81575 1.5 3.0905 3.49575 2.00425 6.3015C4.27375 5.632 6.617 5.2755 8.992 5.25C11.3805 5.27575 13.7262 5.63225 15.996 6.30175C14.91 3.496 12.1845 1.5 9 1.5Z" fill="#2D2F3B"></path></svg>
+                            <%- filters.start_conversation.km %>
+                              <span>Kilometres</span>
+                            </li>
+                            <li>
+                              <svg class="b1rIwt" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" data-icon="true"><path fill="currentColor" fill-rule="evenodd" d="M16.5 15v2.5h-2.849l-1-1.5H7.5v-4.44l1.06-1.06h6.88l1.06 1.06V13h3v2h-3zm3.75-6a0.75 0.75 0 00-0.75 0.75v1.75H18v-0.56L16.06 9h-3.31V7.5h2.5a0.75 0.75 0 100-1.5h-6.5a0.75 0.75 0 100 1.5h2.5V9H7.94L6 10.94v2.43a0.748 0.748 0 00-0.188-0.026H4.5v-2a0.75 0.75 0 10-1.5 0v5.5a0.75 0.75 0 101.5 0v-2h1.313A0.748 0.748 0 006 14.817V17.5h5.849l1 1.5H18v-2.5h1.5v1.75a0.75 0.75 0 101.5 0v-8.5A0.75 0.75 0 0020.25 9z" clip-rule="evenodd"></path></svg>
+                              <%- filters.start_conversation.drivetrain %>
+                              <span>Drivetrain</span>
+                            </li>
+                            <li>
+                              <svg class="b1rIwt" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" data-icon="true"><path fill="currentColor" fill-rule="evenodd" d="M21 5a2 2 0 10-2.75 1.853v4.397h-5.5V6.853a2 2 0 10-1.5 0v4.397h-5.5V6.853a2 2 0 10-1.5 0v10.294a2 2 0 101.5 0V12.75h5.5v4.397a2 2 0 101.5 0V12.75h7V6.853A2 2 0 0021 5z" clip-rule="evenodd"></path></svg>
+                              <%- filters.start_conversation.transmission %>
+                              <span>Transmission</span>
+                            </li>
+                            <li>
+                              <svg class="b1rIwt" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" data-icon="true"><path fill="currentColor" d="M12 7.25A0.75 0.75 0 0111.25 8h-4.5a0.75 0.75 0 110-1.5h4.5A0.75 0.75 0 0112 7.25z"></path><path fill="currentColor" fill-rule="evenodd" d="M20.92 10.335L20.089 12h0.162a0.75 0.75 0 110 1.5H20V19c0 1.103-0.897 2-2 2s-2-0.897-2-2V9a1.501 1.501 0 00-1-1.412V20.25A0.75 0.75 0 0114.25 21H3.75A0.75 0.75 0 013 20.25V3.75A0.75 0.75 0 013.75 3h10.5A0.75 0.75 0 0115 3.75v2.295A3.002 3.002 0 0117.5 9v10a0.5 0.5 0 001 0v-7a0.751 0.751 0 010.079-0.335l1-2a0.751 0.751 0 011.342 0.67zM13.5 19.5h-9v-8h9v8zm0-9.5h-9V4.5h9V10z" clip-rule="evenodd"></path></svg>
+                              <%- filters.start_conversation.fuel %>
+                              <span>Fuel type</span>
+                            </li>
+                          </ul>
+                          </p>
+                          <p>
+                            <span>
+                              publish date: <%- filters.start_conversation.date_posted %>
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <% } else { %>
+                    <div class="text-center">
+                      <a href="<%= filters.start_conversation %>"><%= filters.start_conversation %></a>
+                    </div>
+                  <% } %>
+                  
+                  <form method="POST" action="/" class="text-center pb-3">
+                    <input type="hidden" name="send_message">
+                    <label class="txtarea-label">Message<strong>*</strong>
+                      <textarea class="form-control" name="conv_msg" required><%
+                        if(filters.conversation_data != undefined && filters.conversation_data.msg != undefined){
+                          %><%= filters.conversation_data.msg %><%
+                        } else if (typeof filters.start_conversation === 'object') {
+                          if(typeof def_msg != 'undefined' && def_msg != ''){
+                            %><%= def_msg %><%
+                          } else{
+                            %>I’d like to know if your listing '<%= filters.start_conversation.title %>' is still available?<%
+                          }
+                         } 
+                        %></textarea>
+                      
+                    </label>
+                    <% if(filters.messageType == "fullForm"){ %>
+                    <label class="input-label">Full name<strong>*</strong><input type="text" name="fullName" class="input form-control" value="<%= filters.conversation_data != undefined && filters.conversation_data.fullName != undefined?filters.conversation_data.fullName:'' %>" required></label>
+                    <label class="input-label">Email address<strong>*</strong><input type="email" name="emailAddress" class="input form-control" value="<%= filters.conversation_data != undefined && filters.conversation_data.emailAddress != undefined?filters.conversation_data.emailAddress:'' %>" required></label>
+                    <label class="input-label">Phone (optional)<input type="tel" name="phone" class="input form-control" value="<%= filters.conversation_data != undefined && filters.conversation_data.phone != undefined?filters.conversation_data.phone:'' %>"></label>
+                    <label class="input-label"><input type="checkbox" name="financing" class="mx-2" <%= filters.conversation_data != undefined && filters.conversation_data.financing == 'on'?'checked':'' %>>I'm interested in financing this car</label>
+                    <label class="input-label"><input type="checkbox" name="testDrive" class="mx-2" <%= filters.conversation_data != undefined && filters.conversation_data.testDrive == 'on'?'checked':'' %>>I'm interested in scheduling a test drive</label>
+                    <label class="input-label"><input type="checkbox" name="trading" class="mx-2" <%= filters.conversation_data != undefined && filters.conversation_data.trading == 'on'?'checked':'' %>>I'm interested in trading in my car</label>
+                    
+                    <% } %>
+                    <br>
+                    <button class="btn btn-primary">Send</button>
+                  </form>
+                <% } %>
+        </div>
+        <!-- Add more product cards as needed -->
+      </div>
+    </div>
+    <% } %>
+
+</body>
+
+</html>
