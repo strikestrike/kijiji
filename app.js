@@ -782,6 +782,7 @@ async function processPageActions(req) {
                     console.error("error when waiting after conversation", err);
                 }
                 await myBrowser.page.waitForTimeout(5000);
+                // await myBrowser.page.screenshot({path: 'screenshot_after_sending_msg.png'});
 
                 filters.send_feedback = await myBrowser.page.evaluate(() => {
                     //data-testid="ContactFormModalMessageSent"
