@@ -782,7 +782,7 @@ async function processPageActions(req) {
                     console.error("error when waiting after conversation", err);
                 }
                 await myBrowser.page.waitForTimeout(5000);
-                // await myBrowser.page.screenshot({path: 'screenshot_after_sending_msg.png'});
+                await myBrowser.page.screenshot({path: 'screenshot_after_sending_msg.png'});
 
                 filters.send_feedback = await myBrowser.page.evaluate(() => {
                     //data-testid="ContactFormModalMessageSent"
@@ -897,7 +897,9 @@ if(els[i].innerText == "Show more filters"){
                 });
                 filters.make = [];
                 filters.model = [];
+                filters.model_data=undefined;
                 filters.trim = [];
+                filters.trim_data=undefined
             }
             //carfax
             if (req.body.carfax != undefined) {
@@ -924,7 +926,7 @@ if(els[i].innerText == "Show more filters"){
                     }
                 });
             }
-            if (req.body.filter_model) {//if filter_model form is submitted
+            if (req.body.filter_make && req.body.filter_model) {//if filter_model form is submitted
                 filters.model = [];
                 filters.model = filters.model.concat(req.body.filter_model);
 
@@ -961,10 +963,11 @@ if(els[i].innerText == "Show more filters"){
                 });
                 filters.model = [];
                 filters.trim = [];
+                filters.trim_data=undefined;
             }
 
             // ---------------- trim
-            if (req.body.filter_trim) {//if trim_data form is submitted
+            if (req.body.filter_make && req.body.filter_model && req.body.filter_trim) {//if trim_data form is submitted
                 filters.trim = [];
                 filters.trim = filters.trim.concat(req.body.filter_trim);
 
@@ -1056,6 +1059,9 @@ if(els[i].innerText == "Show more filters"){
                 await clearValue(myBrowser.page, '#PRICE-from');
                 await myBrowser.page.type('#PRICE-from', filters.price_from, { delay: 20, clear: true });
                 await myBrowser.page.waitForTimeout(small_wait);
+            } else if (req.body.filtersForm) {
+                await clearValue(myBrowser.page, '#PRICE-from');
+                filters.price_from = undefined;
             }
 
             if (req.body.price_to) {//if price_to form is submitted
@@ -1064,6 +1070,9 @@ if(els[i].innerText == "Show more filters"){
                 await myBrowser.page.type('#PRICE-to', filters.price_to, { delay: 20, clear: true });
                 // await myBrowser.page.evaluate(`document.querySelector("#PRICE-to").value =` + filters.price_to);
                 await myBrowser.page.waitForTimeout(small_wait);
+            } else if (req.body.filtersForm) {
+                await clearValue(myBrowser.page, '#PRICE-to');
+                filters.price_to = undefined;
             }
             //---------------- transition
             if (req.body.tran_manual) {//if tran_manual form is submitted
@@ -1088,6 +1097,9 @@ if(els[i].innerText == "Show more filters"){
                 await myBrowser.page.type('#MILEAGE-from', filters.Kilometres_from, { delay: 20, clear: true });
                 // await myBrowser.page.evaluate(`document.querySelector("#MILEAGE-from").value =` + filters.Kilometres_from);
                 await myBrowser.page.waitForTimeout(small_wait);
+            } else if (req.body.filtersForm) {
+                await clearValue(myBrowser.page, '#MILEAGE-from');
+                filters.Kilometres_from = undefined;
             }
 
             if (req.body.Kilometres_to) {//if Kilometres_to form is submitted
@@ -1096,6 +1108,9 @@ if(els[i].innerText == "Show more filters"){
                 await myBrowser.page.type('#MILEAGE-to', filters.Kilometres_to, { delay: 20, clear: true });
                 // await myBrowser.page.evaluate(`document.querySelector("#MILEAGE-to").value =` + filters.Kilometres_to);
                 await myBrowser.page.waitForTimeout(small_wait);
+            } else if (req.body.filtersForm) {
+                await clearValue(myBrowser.page, '#MILEAGE-to');
+                filters.Kilometres_to = undefined;
             }
             //------------ body type
             if (req.body.body_type) {
@@ -1104,21 +1119,32 @@ if(els[i].innerText == "Show more filters"){
                     filters.body_type = [filters.body_type];
                 }
                 let script = `//un check all before selecting
-    var els = document.querySelectorAll('[name="c"]');
-    for(var i=0;i<els.length;i++){
-        if(els[i].checked){
-            els[i].click();
-        }
-    }`;
+                            var els = document.querySelectorAll('[name="c"]');
+                            for(var i=0;i<els.length;i++){
+                                if(els[i].checked){
+                                    els[i].click();
+                                }
+                            }`;
                 for (let i = 0; i < filters.body_type.length; i++) {
                     script += `
-        //select the choosen ones
-        if(!document.querySelector('[value="`+ filters.body_type[i] + `"]').checked){
-            document.querySelector('[value="`+ filters.body_type[i] + `"]').click();
-        }`;
+                            //select the choosen ones
+                            if(!document.querySelector('[value="`+ filters.body_type[i] + `"]').checked){
+                                document.querySelector('[value="`+ filters.body_type[i] + `"]').click();
+                            }`;
                 }
                 await myBrowser.page.evaluate(script);
                 await myBrowser.page.waitForTimeout(small_wait);
+            } else if (req.body.filtersForm) {
+                let script = `//un check all before selecting
+                            var els = document.querySelectorAll('[name="c"]');
+                            for(var i=0;i<els.length;i++){
+                                if(els[i].checked){
+                                    els[i].click();
+                                }
+                            }`;
+                await myBrowser.page.evaluate(script);
+                await myBrowser.page.waitForTimeout(small_wait);
+                filters.body_type = undefined;
             }
             //---------------- Condition
             if (req.body.cond_used) {//if cond_used form is submitted
@@ -1269,6 +1295,17 @@ if(els[i].innerText == "Show more filters"){
                 }
                 await myBrowser.page.evaluate(script);
                 await myBrowser.page.waitForTimeout(small_wait);
+            } else if (req.body.filtersForm) {
+                let script = `//un check all before selecting
+                                var els = document.querySelectorAll('[name="ecol"]');
+                                for(var i=0;i<els.length;i++){
+                                    if(els[i].checked){
+                                        els[i].click();
+                                    }
+                                }`;
+                await myBrowser.page.evaluate(script);
+                await myBrowser.page.waitForTimeout(small_wait);
+                filters.ecol = undefined;
             }
             //---------------------- Number of cylinders
             if (req.body.cylinders_from) {//if cylinders_from form is submitted
@@ -1443,7 +1480,8 @@ if(els[i].innerText == "Show more filters"){
                 await myBrowser.page.evaluate(`document.querySelector('button[data-testid="LocationModalSubmitButton"]').click();`);
 
             }
-            if (req.body.with_photo) {
+            if (req.body.with_photo !== undefined) {
+                delete filters.with_photo;
                 filters.with_photo = req.body.with_photo == "0" ? "0" : "1";
 
                 await myBrowser.page.evaluate(`if(document.querySelector("#MEDIA-image" ).checked != ` + (filters.with_photo == "1") + `){
