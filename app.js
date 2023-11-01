@@ -27,6 +27,15 @@ app.use(bodyParser.urlencoded({
 );
 app.use(cookieParser());
 
+const path = require('path');
+const logFilePath = path.join(__dirname, 'app.log');
+// Redirect stdout and stderr to the log file.
+const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+console.log = (msg) => {
+    logStream.write(msg + '\n');
+    process.stdout.write(msg + '\n');
+};
+
 // const User = require('./objects/User'); // Assuming you have a User model
 
 
@@ -1630,7 +1639,7 @@ async function get_results(page) {
 
     // await page.waitForTimeout(12000);
     // await page.evaluate("clearInterval(iv1);clearInterval(iv2);");
-    
+
     const sortOrderElement = await page.$('[data-testid="sortOrder"]');
     if (sortOrderElement) {
         await sortOrderElement.click();
