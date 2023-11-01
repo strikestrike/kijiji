@@ -22,6 +22,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
     crossorigin="anonymous"></script>
+  <link data-require="sweet-alert@*" data-semver="0.4.2" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
   <style>
     .chosen-container {
@@ -1140,15 +1142,20 @@
                       <h5 class="card-title">
                         <%= filters.results[i].title %>
                       </h5>
-                      <% let url = filters.results[i].url;
-                      let idx = url.indexOf('/vip/')+5;
-                      let ad_id = url.substr(idx);
+                      <% 
                       let isMessageSent = false;
-                      for(var j=0;j<filters.msg_ids.length;j++){
-                        if(filters.msg_ids[j] == ad_id){
-                          isMessageSent = true;
-                          break;
-                        }
+                      let url = filters.results[i].url;
+                      if (url.indexOf('/vip/') != -1 && url.length > (url.indexOf('/vip/') + 5)) {
+                          const idx = url.indexOf('/vip/') + 5;
+                          const ad_id = url.substr(idx);
+                          if (filters.msg_ids) {
+                            for(var j=0;j<filters.msg_ids.length;j++){
+                              if(filters.msg_ids[j] == ad_id){
+                                isMessageSent = true;
+                                break;
+                              }
+                            }
+                          }
                       }
                       %>
                         <%- isMessageSent ? '<div class="alert alert-success">✅ Conversation is started</div>':'<div class="alert alert-warning">🟥 Conversation is not started</div>' %>
@@ -1215,6 +1222,21 @@
 
               <% }//end for %>
               <script>
+                swal({
+                  title: "Are you sure?",
+                  text: "Would you like to send messages expressing interest to sellers of the cars you searched for?",
+                  icon: "warning",
+                  buttons: [
+                    'No, cancel it!',
+                    'Yes, I am sure!'
+                  ],
+                  dangerMode: true,
+                }).then(function(isConfirm) {
+                  if (isConfirm) {
+                    $('input[name="multi_conv"]').prop('checked', true);
+                    jQuery('.multiSendBtn').click();
+                  }
+                });
                 jQuery('[name="multi_conv"]').on('change',function(){
                   var els = jQuery('[name="multi_conv"]:checked');
                   if(els.length>0){

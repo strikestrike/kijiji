@@ -252,9 +252,33 @@ async function insert_chat_to_db(ad_id, sender, dealer_name, conv_message, c_dat
 
 async function add_queue_to_db(urls) {
     try {
-        const placeholders = urls.map(() => '(?)').join(', ');
+        const msg_ids = await get_messages_ids_from_db();
+        const qry0 = `select id,url from messages_queue`;
+        const rslt = await queryAsync(qry0);
+        let queued_urls = [];
+        if (rslt && rslt.length > 0) {
+            for (let i = 0; i < rslt.length; i++) {
+                queued_urls.push(rslt[i].url);
+            }
+        }
+
+        let new_urls = [];
+        for (let i = 0; i < urls.length; i++) {
+            if (queued_urls.includes(urls[i])) {
+                continue;
+            }
+            if (urls[i].indexOf('/vip/') != -1 && urls[i].length > (urls[i].indexOf('/vip/') + 5)) {
+                const idx = urls[i].indexOf('/vip/') + 5;
+                const ad_id = urls[i].substr(idx);
+                if (!msg_ids.includes(ad_id)) {
+                    new_urls.push(urls[i])
+                }
+            }
+        }
+
+        const placeholders = new_urls.map(() => '(?)').join(', ');
         const qry1 = `INSERT INTO messages_queue(url) VALUES ${placeholders}`;
-        await queryAsync(qry1, urls);
+        await queryAsync(qry1, new_urls);
         console.log('Data inserted successfully.');
     } catch (error) {
         console.error('Error inserting data:', error);
@@ -1598,14 +1622,27 @@ async function isExist(page, selector) {
     return await page.evaluate(`document.querySelector('` + selector + `') != undefined`);
 }
 async function get_results(page) {
-    await page.evaluate(`document.querySelector('[data-testid="sortOrder"]').click();
-    document.querySelector('[data-testid="sortOrderMenu"] [data-value="YEAR:DESC"]').click();`);
-    await page.waitForTimeout(1000);
+    // await page.evaluate(`document.querySelector('[data-testid="sortOrder"]').click();
+    // document.querySelector('[data-testid="sortOrderMenu"] [data-value="YEAR:DESC"]').click();`);
+    // await page.waitForTimeout(1000);
     
-    page.evaluate("document.scrollingElement.scrollTop=10;var iv1 = setInterval(function(){document.scrollingElement.scrollTop += 300; },10);var iv2 = setInterval(function(){var moreBtn = document.getElementsByClassName('infinite-scroller__show-more-button')[0];moreBtn.click();},1500);");
+    // page.evaluate("document.scrollingElement.scrollTop=10;var iv1 = setInterval(function(){document.scrollingElement.scrollTop += 300; },10);var iv2 = setInterval(function(){var moreBtn = document.getElementsByClassName('infinite-scroller__show-more-button')[0];moreBtn.click();},1500);");
 
-    await page.waitForTimeout(12000);
-    await page.evaluate("clearInterval(iv1);clearInterval(iv2);");
+    // await page.waitForTimeout(12000);
+    // await page.evaluate("clearInterval(iv1);clearInterval(iv2);");
+    
+    const sortOrderElement = await page.$('[data-testid="sortOrder"]');
+    if (sortOrderElement) {
+        await sortOrderElement.click();
+        await page.waitForSelector('[data-testid="sortOrderMenu"] [data-value="YEAR:DESC"]');
+        await page.click('[data-testid="sortOrderMenu"] [data-value="YEAR:DESC"]');
+        await page.waitForTimeout(1000);
+
+        page.evaluate("document.scrollingElement.scrollTop=10;var iv1 = setInterval(function(){document.scrollingElement.scrollTop += 300; },10);var iv2 = setInterval(function(){var moreBtn = document.getElementsByClassName('infinite-scroller__show-more-button')[0];moreBtn.click();},1500);");
+
+        await page.waitForTimeout(12000);
+        await page.evaluate("clearInterval(iv1);clearInterval(iv2);");
+    }
 
     await page.waitForSelector("[data-testid='ListItemPage-0']");
     //collect data

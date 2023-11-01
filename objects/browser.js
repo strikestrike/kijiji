@@ -133,7 +133,7 @@ async function createPage(browser, url) {
             try {
                 const responseBody = await res.text();
                 if (responseBody.indexOf(`{"listings":`) != -1) {
-                    //results_arr = [];
+                    results_arr = [];
                     results_arr.push(responseBody);
                 } else if (responseBody.indexOf(`"conversations":`) != -1) {
                     conv_arr = [];
