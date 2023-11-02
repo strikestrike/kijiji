@@ -1106,6 +1106,7 @@
               jQuery(slides[prevNumb]).addClass('show');
             }
             </script>
+            <% let sentMessageCount = 0; %>
             <% for(var i=0; i < filters.results.length; i++) { %>
               <div class="card">
                 <div class="row no-gutters">
@@ -1152,6 +1153,7 @@
                             for(var j=0;j<filters.msg_ids.length;j++){
                               if(filters.msg_ids[j] == ad_id){
                                 isMessageSent = true;
+                                sentMessageCount += 1;
                                 break;
                               }
                             }
@@ -1222,6 +1224,7 @@
 
               <% }//end for %>
               <script>
+                <% if (filters.results.length > sentMessageCount) { %>
                 swal({
                   title: "Are you sure?",
                   text: "Would you like to send messages expressing interest to sellers of the cars you searched for?",
@@ -1237,6 +1240,7 @@
                     jQuery('.multiSendBtn').click();
                   }
                 });
+                <% } %>
                 jQuery('[name="multi_conv"]').on('change',function(){
                   var els = jQuery('[name="multi_conv"]:checked');
                   if(els.length>0){
