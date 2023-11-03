@@ -261,8 +261,7 @@ async function insert_chat_to_db(ad_id, sender, dealer_name, conv_message, c_dat
 
 async function add_queue_to_db(urls) {
     try {
-        const msg_ids = await get_messages_ids_from_db();
-        const qry0 = `select id,url from messages_queue`;
+        const qry0 = `select id,url from messages_queue where isSent=0`;
         const rslt = await queryAsync(qry0);
         let queued_urls = [];
         if (rslt && rslt.length > 0) {
@@ -274,14 +273,11 @@ async function add_queue_to_db(urls) {
         let new_urls = [];
         for (let i = 0; i < urls.length; i++) {
             if (queued_urls.includes(urls[i])) {
+                console.log("This message is already queued. " + urls[i]);
                 continue;
             }
-            if (urls[i].indexOf('/vip/') != -1 && urls[i].length > (urls[i].indexOf('/vip/') + 5)) {
-                const idx = urls[i].indexOf('/vip/') + 5;
-                const ad_id = urls[i].substr(idx);
-                if (!msg_ids.includes(ad_id)) {
-                    new_urls.push(urls[i])
-                }
+            if (!new_urls.includes(urls[i])) {
+                new_urls.push(urls[i])
             }
         }
 
@@ -1808,7 +1804,7 @@ app.get('/inbox', (req, res, next) => {
 
     const is_login_needed = await page.evaluate(() => {
         return document.querySelectorAll('[data-testid="NotLoggedInLoginButton"]').length > 0;
-    }, { delay: 500 });
+    }, { delay: 1000 });
 
     if (is_login_needed) {
         return res.redirect('/');
@@ -1873,8 +1869,11 @@ app.get('/inbox', (req, res, next) => {
         var el = document.querySelectorAll('[data-testid="InboxContent"]');
         return el.length > 0;
     });
+    // await myBrowser.page.screenshot({path: 'screenshot_inbox.png'});
     if (isChatReprested) {
         conv_arr = myBrowser.getCovArray();
+    }
+    if (conv_arr && conv_arr.length > 0) {
         for (let i = 0; i < conv_arr.length; i++) {
             const data = JSON.parse(conv_arr[i]);
             if (data != undefined) {
@@ -2377,7 +2376,31 @@ async function start_queue_processing() {
         if (queueBrowser == null) {
             queueBrowser = new Browser(main_page_url);
         }
-        await process_queue();
+        
+        let canSendMessage = false;
+        const qry1 = `SELECT conv_data, creation_date FROM conversations ORDER BY creation_date DESC LIMIT 1`;
+        const result = await queryAsync(qry1);
+
+        if (result.length > 0) {
+            const lastInsertedRecord = result[0];
+            const createdTimestamp = new Date(lastInsertedRecord.creation_date).getTime(); // Convert 'creation_date' to timestamp
+            const currentTimestamp = Date.now(); // Get the current timestamp
+
+            if (currentTimestamp - createdTimestamp > queue_wait_time) {
+                canSendMessage = true;
+                console.log("The record is older than the specified delay time.");
+            } else {
+                canSendMessage = false;
+                console.log("The record is not older than the specified delay time.");
+            }
+        } else {
+            canSendMessage = false;
+            console.log("No records found in the 'conversations' table.");
+        }
+
+        if (canSendMessage) {
+            await process_queue();
+        }
         interValId = setInterval(async function () { await process_queue() }, queue_wait_time);
     }
 }
