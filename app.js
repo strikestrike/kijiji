@@ -1484,6 +1484,7 @@ if(els[i].innerText == "Show more filters"){
                 await myBrowser.page.waitForSelector('ul[data-testid="Autosuggest-Menu"] li');
                 await myBrowser.page.evaluate(`document.querySelector('ul[data-testid="Autosuggest-Menu"] li').click();`);
                 //choose radius
+                await page.waitForTimeout(1000);
                 await myBrowser.page.evaluate(`
                     document.querySelector('#rd').click();
                     var els = document.querySelectorAll('ul[data-testid="LocationRadiusDropdownDesktopMenu"] li');
@@ -1497,17 +1498,42 @@ if(els[i].innerText == "Show more filters"){
                     }`
                 );
                 //click on limit radius if needed
-                const isSelectRadiusLimit = filters.limit_radius == 'on';
                 await page.waitForTimeout(1000);
-                await myBrowser.page.evaluate(`
-                    if(document.querySelector('#limitedToProvince').checked != `+ isSelectRadiusLimit + `){
-                        document.querySelector('#limitedToProvince').click();
-                    }`
-                );
+                if (filters.limit_radius) {
+                    const isSelectRadiusLimit = filters.limit_radius == 'on';
+                    await myBrowser.page.evaluate(`
+                        if(document.querySelector('#limitedToProvince').checked != `+ isSelectRadiusLimit + `){
+                            document.querySelector('#limitedToProvince').click();
+                        }`
+                    );
+                }
+
+                await page.waitForTimeout(2000);
 
                 //apply location filters
                 await myBrowser.page.evaluate(`document.querySelector('button[data-testid="LocationModalSubmitButton"]').click();`);
 
+            } else {
+                filters.location = undefined;
+                filters.limit_radius = undefined;
+                //------ clear location
+                await myBrowser.page.waitForSelector('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
+
+                await myBrowser.page.evaluate(() => {
+                    //show location msg
+                    var els = document.querySelectorAll('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
+                    if (els.length > 0) {
+                        els[0].click();
+                    }
+                    els = document.querySelectorAll('[data-testid="LocationHeaderResetButton"]');
+                    if (els.length > 0) {
+                        els[0].click();
+                    }
+                    els = document.querySelectorAll('button[data-testid="LocationModalSubmitButton"]');
+                    if (els.length > 0) {
+                        els[0].click();
+                    }
+                });
             }
             if (req.body.with_photo !== undefined) {
                 delete filters.with_photo;
