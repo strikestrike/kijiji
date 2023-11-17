@@ -302,7 +302,7 @@
               <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
               <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
             </svg>
-          load filters</button>
+          Load Filters</button>
         </form>
         <form method="post" action="/" class="d-inline">
           <input type="hidden" name="saveFilters" value="true">
@@ -311,7 +311,7 @@
               <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
               <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
             </svg>
-          save filters</button>
+          Apply Filters</button>
         </form>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history d-inline" viewBox="0 0 16 16">
@@ -413,7 +413,6 @@
             <label>
             <input type="checkbox" name="limit_radius" <%= filters.limit_radius=='on'?'checked':'' %>> Limit radius to province</label>
             <br>
-            <button class="btn btn-primary mt-2">Submit</button>
           </div>
           <script>
             function updateOptions(newOptions) {
@@ -485,7 +484,6 @@
               <option value="free" <%- filters.carfax && filters.carfax == 'free'?'selected':'' %>>Free Report</option>
               <option value="request" <%- filters.carfax && filters.carfax == 'request'?'selected':'' %>>Request/Buy Report</option>
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
           <div class="separator">
             <label>Make</label>
@@ -498,7 +496,6 @@
                 </option>
                 <% } %>
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
           <script>
             $(".make-select").chosen({
@@ -526,7 +523,6 @@
                   <% }//end for %>
                     <% }//end if %>
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
           <script>
             $(".model-select").chosen({
@@ -553,7 +549,6 @@
                   <% }//end for %>
                     <% }//end if %>
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
           <script>
             $(".trim-select").chosen({
@@ -596,7 +591,6 @@
                   <% }//end for %>
                     <% }//end if %>
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -607,7 +601,6 @@
             <label>Price to</label>
             <input name="price_to" placeholder="All" min="0" max="9999999" type="number"
               value="<%= filters.price_to %>">
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -621,7 +614,6 @@
               <input type="checkbox" name="tran_automatic" value="1" <%=filters.tran_automatic==1?'checked':'' %>>
             </label>
 
-            <button class="btn btn-primary">Submit</button>
 
           </div>
 
@@ -633,7 +625,6 @@
             <label>Kilometres to</label>
             <input name="Kilometres_to" placeholder="All" min="0" max="999999" type="number"
               value="<%= filters.Kilometres_to %>">
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -700,7 +691,6 @@
                       width="40" height="40"></div><span>Other</span>
                 </label></li>
             </ul>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -722,7 +712,6 @@
               Certified Pre-Owned
             </label>
 
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -753,7 +742,6 @@
               Other
             </label>
 
-            <button class="btn btn-primary">Submit</button>
           </div>
 
 
@@ -785,7 +773,6 @@
               Other
             </label>
 
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -800,7 +787,6 @@
               <input type="checkbox" name="slr_private" value="1" <%=filters.slr_private==1?'checked':'' %>>
               Private seller
             </label>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
 
@@ -893,7 +879,6 @@
                       width="40" height="40"></div><span>Other</span>
                 </label></li>
             </ul>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -924,7 +909,6 @@
               <option value="8 cylinders" <%=filters.cylinders_to=='8 cylinders' ?'selected':'' %>>8 cylinders</option>
 
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
           <div class="separator">
             <label>Engine size</label>
@@ -961,7 +945,6 @@
               <option value="5500 cc" <%=filters.engin_size_to=='5500 cc' ?'selected':'' %>>5500 cc</option>
               <option value="6000 cc" <%=filters.engin_size_to=='6000 cc' ?'selected':'' %>>6000 cc</option>
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -988,7 +971,6 @@
               <option value="300 kW" <%=filters.power_to=='300 kW' ?'selected':'' %>>300 kW</option>
 
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -1019,7 +1001,6 @@
               <option value="9 seats" <%=filters.seat_to=='9 seats' ?'selected':'' %>>9 seats</option>
 
             </select>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -1036,7 +1017,6 @@
                 %>>
               4/5 doors
             </label>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
           <div class="separator">
@@ -1051,7 +1031,6 @@
               <input type="checkbox" name="with_photo" value="1" <%=filters.with_photo==1?'checked':'' %>>
               With photos
             </label>
-            <button class="btn btn-primary">Submit</button>
           </div>
 
         </div>
