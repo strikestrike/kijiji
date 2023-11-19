@@ -145,7 +145,6 @@
     }
     /* Scroll Container Styles */
 .scroll-container {
-  width: 300px; /* Adjust the width as needed */
   height: 400px; /* Adjust the height as needed */
   overflow: auto;
   border: 1px solid #ccc;
@@ -295,24 +294,21 @@
         <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div>
       </div>
       <div class="text-center mt-10">
-        <form method="post" action="/" class="d-inline">
+        <form method="post" action="/" class="d-inline" style="border: none;">
           <input type="hidden" name="loadFilters" value="true">
           <button class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise d-inline" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
               <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
             </svg>
-          Load Filters</button>
+          load filters</button>
         </form>
-        <form method="post" action="/" class="d-inline">
-          <input type="hidden" name="saveFilters" value="true">
-          <button class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle d-inline" viewBox="0 0 16 16">
-              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-            </svg>
-          Apply Filters</button>
-        </form>
+        <button class="btn btn-primary" id="btn_save_filters">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle d-inline" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+          </svg>
+        Apply filters</button>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history d-inline" viewBox="0 0 16 16">
             <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
@@ -321,6 +317,12 @@
           </svg>
           History
         </button>
+        <script>
+          jQuery('#btn_save_filters').on('click',function(){
+            $('[name=saveFilters]').val(true);
+            $('#filter_form')[0].submit();
+          });
+        </script>
         <%
           function formatTimestamp(timestampString) {
             // Remove the "filter_history_" prefix
@@ -335,53 +337,118 @@
             return formattedDate;
           }
         %>
-<!-- The Modal -->
-<div class="modal" id="myModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
+        <!-- The Modal -->
+        <div class="modal" id="myModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
 
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Search History</h4>
-        <button type="button" class="btn-close bg-red-600 text-white leading-none" data-bs-dismiss="modal">X</button>
-      </div>
+              <!-- Modal Header -->
+              <div class="modal-header">
+                <h4 class="modal-title">Search History</h4>
+                <button type="button" class="btn-close bg-red-600 text-white leading-none" data-bs-dismiss="modal">X</button>
+              </div>
 
-      <!-- Modal body -->
-      <div class="modal-body">
-        <div class="scroll-container m-auto">
-          <div class="scroll-content">
-            <% if(filters.filters_history && filters.filters_history.length>0){ %>
-              <% for(var i=0;i<filters.filters_history.length;i++){ %>
-                <form method="post" action="/" class="m-0 p-0">
-                  <input type="hidden" name="loadFilters" value="<%= filters.filters_history[i] %>">
-                  <button class="item d-block w-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history d-inline" viewBox="0 0 16 16">
-                      <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
-                      <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
-                      <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
-                    </svg>  
-                    <%= formatTimestamp(filters.filters_history[i]) %>
-                    </button>
-                </form>
-                <% } %>
-                <% } %>
+              <!-- Modal body -->
+              <div class="modal-body">
+                <div class="scroll-container m-auto">
+                  <div class="scroll-content">
+                    <% if(filters.filters_history && filters.filters_history.length>0){ %>
+                      <% for(var i=0;i<filters.filters_history.length;i++){ %>
+                        <form method="post" action="/" class="m-0 p-0">
+                          <div class="item d-flex align-items-center">
+                            <input type="hidden" name="loadFilters" value="<%= filters.filters_history[i] %>">
+                            <input type="text" class="w-50 filter_history_name" value="<%= filters.filters_history[i].replace(/^filter_history_/, '') %>" style="border:none;padding:">
+                            <button class="d-block w-50">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history d-inline" viewBox="0 0 16 16">
+                                <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+                                <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
+                                <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
+                              </svg>  
+                              <!-- <%= formatTimestamp(filters.filters_history[i]) %> -->
+                              </button>
+                            </div>
+                        </form>
+                        <% } %>
+                        <% } %>
+                  </div>
+                </div>
+                
+              </div>
+
+              <!-- Modal footer -->
+              <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              </div>
+
+            </div>
           </div>
         </div>
-        
-      </div>
+        <script>
+          function debounce(func, wait) {
+            let timeout;
+            return function() {
+              const context = this;
+              const args = arguments;
+              const later = function() {
+                timeout = null;
+                func.apply(context, args);
+              };
+              clearTimeout(timeout);
+              timeout = setTimeout(later, wait);
+            };
+          }
 
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-      </div>
+          // Your logic function to handle input change
+          function handleInputChange($input) {
+            var newName = $input.val();
+            if (newName == '') {
+              alert('Please input the history name.');
+              return;
+            }
 
-    </div>
-  </div>
-</div>
+            var historyId = $input.siblings('[name=loadFilters]').val();
+            if (!historyId.startsWith('filter_history_')) {
+              console.log('invalid history id: ' + historyId);
+              return;
+            }
+
+            // Change the background color to weak red
+            $input.css('background-color', '#FF6961');
+
+            $.ajax({
+              url: window.location.origin + '/updateFilterHistoryName',
+              type: "POST",
+              data: {
+                historyId: historyId,
+                historyName: newName
+              },
+              success: function(data) {
+                $input.css('background-color', '');
+              },
+              error: function(xhr, status, error) {
+                console.log("Error:", error);
+              }
+            });
+          }
+
+          // Debounce the input event with a delay of 500 milliseconds
+          const debouncedHandleInputChange = debounce(handleInputChange, 500);
+
+          // Attach an input event listener to the filter_history_name input field
+          $('.filter_history_name').on('input', function() {
+            // Get the updated value from the input field
+            var $input = $(this);
+
+            // Call the debounced function with the updated value
+            debouncedHandleInputChange($input);
+          });
+        </script>
+
       </div>
       <!-- filters form -->
-      <form action="/" method="post">
+      <form action="/" method="post" id="filter_form">
         <input type="hidden" name="filtersForm" value="true">
+        <input type="hidden" name="saveFilters" value="false">
       <div class="row m-0">
         <div class="col-sm-2"></div>
         <div class="col-sm-8 p-4 py-8 text-center" style="box-shadow: 0px 9px 11px #e1e1e1;">
@@ -508,6 +575,51 @@
             // Set the selected values programmatically
             $(".make-select").val(selectedValues).trigger("chosen:updated");
 
+            $(".make-select").on("change", function () {
+                // Get the selected make values
+                var selectedMakes = $('.make-select').val();
+
+                // Make an AJAX request to update model and trim selects
+                $.ajax({
+                    url: window.location.origin + '/updateModelTrim',
+                    type: 'POST',
+                    data: { makes: selectedMakes},
+                    success: function (data) {
+                        if (data.success) {
+                            // Update 'model-select' with new data
+                            // Assuming you have a 'model-select' dropdown with the class 'model-select'
+                            $(".model-select").empty();
+                            $.each(data.model_data, function (index, value) {
+                                $(".model-select").append('<option value="' + value + '">' + value + '</option>');
+                            });
+
+                            // Update 'trim-select' with new data
+                            // Assuming you have a 'trim-select' dropdown with the class 'trim-select'
+                            $(".trim-select").empty();
+                            $.each(data.trim_data, function (index, value) {
+                                $(".trim-select").append('<option value="' + value + '">' + value + '</option>');
+                            });
+
+                            $(".model-select").prop('disabled', data.model_data ? false : true);
+                            $(".trim-select").prop('disabled', data.trim_data ? false : true);
+
+                            // Trigger chosen:updated to refresh the chosen dropdowns
+                            $(".model-select, .trim-select").trigger("chosen:updated");
+                        } else {
+                            console.log('Update failed: ' + data.message);
+                            $(".model-select").empty();
+                            $(".trim-select").empty();
+                            $(".model-select").prop('disabled', true);
+                            $(".trim-select").prop('disabled', true);
+                            $(".model-select, .trim-select").trigger("chosen:updated");
+                        }
+                    },
+                    error: function (error) {
+                        console.log('Error updating model and trim: ' + error);
+                    }
+                });
+            });
+
           </script>
 
           <div class="separator">
@@ -533,6 +645,36 @@
 
             // Set the selected values programmatically
             $(".model-select").val(selectedValues).trigger("chosen:updated");
+
+            $(".model-select").on("change", function () {
+                var selectedMakes = $('.make-select').val();
+                var selectedModels = $('.model-select').val();
+                $.ajax({
+                    url: window.location.origin + '/updateModelTrim',
+                    type: 'POST',
+                    data: { makes: selectedMakes, models: selectedModels },
+                    success: function (data) {
+                        if (data.success) {
+                            $(".trim-select").empty();
+                            $.each(data.trim_data, function (index, value) {
+                                $(".trim-select").append('<option value="' + value + '">' + value + '</option>');
+                            });
+
+                            $(".trim-select").prop('disabled', data.trim_data ? false : true);
+
+                            $(".model-select, .trim-select").trigger("chosen:updated");
+                        } else {
+                            console.log('Update failed: ' + data.message);
+                            $(".trim-select").empty();
+                            $(".trim-select").prop('disabled', true);
+                            $(".trim-select").trigger("chosen:updated");
+                        }
+                    },
+                    error: function (error) {
+                        console.log('Error updating model and trim: ' + error);
+                    }
+                });
+            });
 
           </script>
 
@@ -565,7 +707,7 @@
 
           <div class="separator">
             <label>Year from</label>
-            <select data-placeholder="Year from" class="trim-select" name="year_from_data"
+            <select data-placeholder="Year from" class="year-from-select" name="year_from_data"
               value="<%= filters.year_from %>" <%=filters.year_from_data==undefined?'disabled':'' %>>
 
               <% if(filters.year_from_data !==undefined){ %>
@@ -579,7 +721,7 @@
             </select>
             <div style="display:inline-block;width:20px;"></div>
             <label>Year to</label>
-            <select data-placeholder="Year to" class="trim-select" name="year_to_data"
+            <select data-placeholder="Year to" class="year-to-select" name="year_to_data"
               <%=filters.year_to_data==undefined?'disabled':'' %>>
 
               <% if(filters.year_to_data !==undefined){ %>

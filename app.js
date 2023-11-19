@@ -208,6 +208,17 @@ async function save_filters_history(filters) {
         console.error('Error inserting data:', error);
     }
 }
+async function update_filter_history_name(orgName, newName) {
+    if (orgName.indexOf('filter_history_') !== 0) {
+        return;
+    }
+    try {
+        const qry1 = `UPDATE options SET name=? WHERE name=?`;
+        await queryAsync(qry1, [newName, orgName]);
+    } catch (error) {
+        console.error('Error update_single_queue_status_db:', error);
+    }
+}
 async function get_All_filters_history_names() {
     try {
 
@@ -448,6 +459,82 @@ app.get('/cityName', async (req, res) => {
     }
     res.json({ 'error': 'No citykey is set.' });
 });
+app.post('/updateFilterHistoryName', async (req, res) => {
+    const historyId = req.body.historyId;
+    const newName = 'filter_history_' + req.body.historyName;
+    if (historyId.indexOf('filter_history_') !== 0 || !req.body.historyName) {
+        return res.json({ 'error': 'Invalid Name' });
+    }
+    await update_filter_history_name(historyId, newName);
+
+    res.json({ 'success': true });
+});
+app.post('/updateModelTrim', async (req, res) => {
+    const makes = req.body.makes;
+    const models = req.body.models;
+
+    filters.make = [];
+    filters.model = [];
+    filters.trim = [];
+    filters.model_data = undefined;
+    filters.trim_data = undefined;
+
+    if (makes != undefined && makes.length !== 0) {
+        filters.make = filters.make.concat(makes);
+
+        try {
+            //------------------- select/choose "make" checkboxes
+            let scriptMake = `document.querySelector('#MAKE_MODEL #make').click();document.querySelector('#MAKE_MODEL [data-testid="MakeFilterDesktopMenu"] button span').click();`;
+            for (let i = 0; i < filters.make.length; i++) {
+                scriptMake += `document.querySelector('#MAKE_MODEL [name="` + filters.make[i] + `"]').parentElement.parentElement.children[1].click();`;
+            }
+            scriptMake += `document.querySelector('#MAKE_MODEL [data-testid="ApplyButton"]').click();`;
+            await myBrowser.page.evaluate(scriptMake);
+            await myBrowser.page.waitForTimeout(10);
+
+            //-------------------- get select "model" elements
+            filters.model_data = await myBrowser.page.evaluate(() => {
+                var els = document.querySelectorAll('#MAKE_MODEL [data-testid="ModelFilterDesktopMenu"] li input');
+                var arr = [];
+                for (var i = 0; i < els.length; i++) {
+                    arr.push(els[i].getAttribute("name"));
+                }
+                return arr;
+            });
+        } catch (err) {
+            console.log(err);
+        }
+
+        if (models != undefined && models.length !== 0) {
+            filters.model = filters.model.concat(models);
+
+            //------------------- select/choose "model" checkboxes
+            try {
+                let scriptModel = `document.querySelector('#MAKE_MODEL #model').click(); document.querySelector('#MAKE_MODEL [data-testid="ModelFilterDesktopMenu"] button span').click();`;
+                for (let i = 0; i < filters.model.length; i++) {
+                    scriptModel += `document.querySelector('#MAKE_MODEL  [data-testid="ModelFilterDesktopMenu"] [name="` + filters.model[i] + `"]').parentElement.parentElement.children[1].click();`;
+                }
+                scriptModel += `document.querySelector('#MAKE_MODEL  [data-testid="ModelFilterDesktopMenu"] [data-testid="ApplyButton"]').click();`;
+                await myBrowser.page.evaluate(scriptModel);
+                await myBrowser.page.waitForTimeout(10);
+
+                //------------------- get "trim" data
+                filters.trim_data = await myBrowser.page.evaluate(() => {
+                    var els = document.querySelectorAll('[data-testid="TrimFilterDesktopMenu"] li input');
+                    var arr = [];
+                    for (var i = 0; i < els.length; i++) {
+                        arr.push(els[i].getAttribute("name"));
+                    }
+                    return arr;
+                });
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        return res.json({ 'success': true, model_data: filters.model_data, trim_data: filters.trim_data });
+    }
+    return res.json({ 'success': false, 'message': 'No make is set.' });
+});
 app.get('/', (req, res, next) => {
     const token = req.cookies.token;
     // Verify and decode the token as needed
@@ -541,8 +628,14 @@ async function processPageActions(req) {
         if (req.body.loadFilters) {
             if (req.body.loadFilters.indexOf('filter_history_') === 0) {
                 filter_db_key = req.body.loadFilters;
+            } else {
+                myBrowser.reseetResultsArray();
+                await myBrowser.page.goto(main_page_url);
             }
             filters = await get_options_by_name(filter_db_key);
+            if (!filters) {
+                filters = {};
+            }
 
             req.body.filtersForm = filters.filtersForm;
             req.body.filter_make = filters.make;
