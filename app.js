@@ -952,24 +952,23 @@ async function processPageActions(req) {
 
             }
             try {
-                await myBrowser.page.evaluate(`var el = document.querySelector('[data-testid="AdvancedSearchButton"]');
-        if(typeof el != "undefined" && el != null){
-            el.click();
-        }
-    var els = document.querySelectorAll('[data-testid="DetailSearchModalForm"] button span');
-for(var i=0;i<els.length;i++){
-if(els[i].innerText == "Show more filters"){
-    els[i].click();
-}
-}`);
-                const url = await page.url();
+                const url = await myBrowser.page.url();
 
                 if (url != main_page_url && req.body.conv_msg == undefined && req.body.start_conversation == undefined) {
-                    await page.goto(main_page_url);
-                    await page.waitForTimeout(1000);
-                    await page.waitForSelector('[data-testid="AdvancedSearchButton"]');
+                    await myBrowser.page.goto(main_page_url);
+                    await myBrowser.page.waitForTimeout(1000);
+                    await myBrowser.page.waitForSelector('[data-testid="AdvancedSearchButton"]');
                 }
-                // await myBrowser.page.waitForSelector('[data-testid="AdvancedSearchButton"]');
+                await myBrowser.page.evaluate(`var el = document.querySelector('[data-testid="AdvancedSearchButton"]');
+                                                if(typeof el != "undefined" && el != null){
+                                                    el.click();
+                                                }
+                                                var els = document.querySelectorAll('[data-testid="DetailSearchModalForm"] button span');
+                                                for(var i=0;i<els.length;i++){
+                                                    if(els[i].innerText == "Show more filters"){
+                                                        els[i].click();
+                                                    }
+                                                }`);
                 if (filters.make_data == undefined) {
                     let make_data = await myBrowser.page.evaluate(() => {
                         return document.querySelector('#make').innerText.replaceAll('\n', ',')
@@ -1637,7 +1636,7 @@ if(els[i].innerText == "Show more filters"){
     }`);
                 await myBrowser.page.waitForTimeout(small_wait);
             }
-            await myBrowser.page.waitForTimeout(500);
+            await myBrowser.page.waitForTimeout(1000);
             filters.results_button = await myBrowser.page.evaluate(`var el = document.querySelector('[data-testid="AllFiltersResultButton"]');if(el != undefined){el.innerText}else{"Apply"}`);
 
             if (req.body.show_results == "show") {
