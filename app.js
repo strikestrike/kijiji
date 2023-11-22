@@ -980,6 +980,86 @@ async function processPageActions(req) {
             } catch (err) {
                 console.log(err);
             }
+            if (req.body.show_results == "show") {
+
+                await save_filters_history(filters);
+
+                await myBrowser.page.evaluate(`document.querySelector('[data-testid="AllFiltersResultButton"]').click();`);
+
+                await myBrowser.page.waitForSelector('[data-testid="ListItemPage-0"]');
+
+                //rslt variable is not used, myBrowser.getResultsArray is getting API results directly
+                let rslt = await get_results(myBrowser.page);
+                
+                await myBrowser.page.waitForTimeout(2000);
+
+                const rslt_arr_tmp = myBrowser.getResultsArray();
+
+                let rslt_arr = [];
+                for (let i = 0; i < rslt_arr_tmp.length; i++) {
+                    const data = JSON.parse(rslt_arr_tmp[i]);
+                    if (data != undefined) {
+                        const listings = data.listings;
+                        if (listings != null && listings != undefined && listings.items != undefined && listings.items.length > 0) {
+                            for (let j = 0; j < listings.items.length; j++) {
+                                const item = listings.items[j];
+
+                                var containsAdId = rslt_arr.some(function(carItem) {
+                                    return carItem.url === item.url;
+                                });
+                                if (containsAdId) {
+                                    continue;
+                                }
+
+                                let carfax_status = "undefined";
+                                if (item.badges.length > 0) {
+                                    for (let j = 0; j < item.badges.length; j++) {
+                                        if (item.badges[j].label && item.badges[j].label == 'Free CARFAX Report') {
+                                            carfax_status = "free";
+                                            break;
+                                        } else {
+                                            carfax_status = "request";
+                                        }
+                                    }
+                                } else {
+                                    carfax_status = "request";
+                                }
+
+                                if (filters.carfax != 'all' && ((filters.carfax == 'free' && carfax_status != 'free') || (filters.carfax == 'request' && carfax_status != 'request'))) continue;
+
+                                let price = "-";
+                                let currency = "";
+                                if (item.prices.consumerPrice != undefined) {
+                                    price = item.prices.consumerPrice.localized;
+                                    currency = item.prices.consumerPrice.currency;
+                                }
+                                const obj = {
+                                    title: item.title,
+                                    description: item.description,
+                                    date_posted: getReadableDate(item.created),
+                                    url: item.url,
+                                    condition: item.condition,
+                                    trim: item.trim,
+                                    images: item.images,
+                                    km: item.attr.ml,
+                                    drivetrain: item.attr.dt,
+                                    transmission: item.attr.tr,
+                                    fuel: item.attr.tf,
+                                    door: item.attr.door,
+                                    //attr:item.attr,
+                                    listingStatus: item.listingStatus,
+                                    price: price,
+                                    currency: currency,
+                                };
+
+                                rslt_arr.push(obj);
+                            }
+                        }
+                    }
+                }
+                //console.log(rslt_arr);
+                filters.results = rslt_arr;
+            }
             if (req.body.filter_make) {//if filter_make form is submitted
                 await myBrowser.page.waitForSelector('#MAKE_MODEL');
 
@@ -1609,23 +1689,23 @@ async function processPageActions(req) {
                 filters.location = undefined;
                 filters.limit_radius = undefined;
                 //------ clear location
-                await myBrowser.page.waitForSelector('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
+                // await myBrowser.page.waitForSelector('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
 
-                await myBrowser.page.evaluate(() => {
-                    //show location msg
-                    var els = document.querySelectorAll('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
-                    if (els.length > 0) {
-                        els[0].click();
-                    }
-                    els = document.querySelectorAll('[data-testid="LocationHeaderResetButton"]');
-                    if (els.length > 0) {
-                        els[0].click();
-                    }
-                    els = document.querySelectorAll('button[data-testid="LocationModalSubmitButton"]');
-                    if (els.length > 0) {
-                        els[0].click();
-                    }
-                });
+                // await myBrowser.page.evaluate(() => {
+                //     //show location msg
+                //     var els = document.querySelectorAll('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
+                //     if (els.length > 0) {
+                //         els[0].click();
+                //     }
+                //     els = document.querySelectorAll('[data-testid="LocationHeaderResetButton"]');
+                //     if (els.length > 0) {
+                //         els[0].click();
+                //     }
+                //     els = document.querySelectorAll('button[data-testid="LocationModalSubmitButton"]');
+                //     if (els.length > 0) {
+                //         els[0].click();
+                //     }
+                // });
             }
             if (req.body.with_photo !== undefined) {
                 delete filters.with_photo;
@@ -1638,79 +1718,6 @@ async function processPageActions(req) {
             }
             await myBrowser.page.waitForTimeout(1000);
             filters.results_button = await myBrowser.page.evaluate(`var el = document.querySelector('[data-testid="AllFiltersResultButton"]');if(el != undefined){el.innerText}else{"Apply"}`);
-
-            if (req.body.show_results == "show") {
-
-                await save_filters_history(filters);
-
-                await myBrowser.page.evaluate(`document.querySelector('[data-testid="AllFiltersResultButton"]').click();`);
-
-                await myBrowser.page.waitForSelector('[data-testid="ListItemPage-0"]');
-
-                //rslt variable is not used, myBrowser.getResultsArray is getting API results directly
-                let rslt = await get_results(myBrowser.page);
-                
-                await myBrowser.page.waitForTimeout(2000);
-
-                const rslt_arr_tmp = myBrowser.getResultsArray();
-
-                let rslt_arr = [];
-                for (let i = 0; i < rslt_arr_tmp.length; i++) {
-                    const data = JSON.parse(rslt_arr_tmp[i]);
-                    if (data != undefined) {
-                        const listings = data.listings;
-                        if (listings != null && listings != undefined && listings.items != undefined && listings.items.length > 0) {
-                            for (let j = 0; j < listings.items.length; j++) {
-                                const item = listings.items[j];
-                                let carfax_status = "undefined";
-                                if (item.badges.length > 0) {
-                                    for (let j = 0; j < item.badges.length; j++) {
-                                        if (item.badges[j].label && item.badges[j].label == 'Free CARFAX Report') {
-                                            carfax_status = "free";
-                                            break;
-                                        } else {
-                                            carfax_status = "request";
-                                        }
-                                    }
-                                } else {
-                                    carfax_status = "request";
-                                }
-
-                                if (filters.carfax != 'all' && ((filters.carfax == 'free' && carfax_status != 'free') || (filters.carfax == 'request' && carfax_status != 'request'))) continue;
-
-                                let price = "-";
-                                let currency = "";
-                                if (item.prices.consumerPrice != undefined) {
-                                    price = item.prices.consumerPrice.localized;
-                                    currency = item.prices.consumerPrice.currency;
-                                }
-                                const obj = {
-                                    title: item.title,
-                                    description: item.description,
-                                    date_posted: getReadableDate(item.created),
-                                    url: item.url,
-                                    condition: item.condition,
-                                    trim: item.trim,
-                                    images: item.images,
-                                    km: item.attr.ml,
-                                    drivetrain: item.attr.dt,
-                                    transmission: item.attr.tr,
-                                    fuel: item.attr.tf,
-                                    door: item.attr.door,
-                                    //attr:item.attr,
-                                    listingStatus: item.listingStatus,
-                                    price: price,
-                                    currency: currency,
-                                };
-
-                                rslt_arr.push(obj);
-                            }
-                        }
-                    }
-                }
-                //console.log(rslt_arr);
-                filters.results = rslt_arr;
-            }
 
             console.log(filters);
 
