@@ -904,7 +904,6 @@ async function processPageActions(req) {
                     console.error("error when waiting after conversation", err);
                 }
                 await myBrowser.page.waitForTimeout(5000);
-                await myBrowser.page.screenshot({path: 'screenshot_after_sending_msg.png'});
 
                 filters.send_feedback = await myBrowser.page.evaluate(() => {
                     //data-testid="ContactFormModalMessageSent"
@@ -1689,23 +1688,27 @@ async function processPageActions(req) {
                 filters.location = undefined;
                 filters.limit_radius = undefined;
                 //------ clear location
-                // await myBrowser.page.waitForSelector('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
+                try {
+                    await myBrowser.page.waitForSelector('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]', {timeout: 1500});
 
-                // await myBrowser.page.evaluate(() => {
-                //     //show location msg
-                //     var els = document.querySelectorAll('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
-                //     if (els.length > 0) {
-                //         els[0].click();
-                //     }
-                //     els = document.querySelectorAll('[data-testid="LocationHeaderResetButton"]');
-                //     if (els.length > 0) {
-                //         els[0].click();
-                //     }
-                //     els = document.querySelectorAll('button[data-testid="LocationModalSubmitButton"]');
-                //     if (els.length > 0) {
-                //         els[0].click();
-                //     }
-                // });
+                    await myBrowser.page.evaluate(() => {
+                        //show location msg
+                        var els = document.querySelectorAll('form[data-testid="DetailSearchModalForm"] button[data-testid="LocationLabelLink"]');
+                        if (els.length > 0) {
+                            els[0].click();
+                        }
+                        els = document.querySelectorAll('[data-testid="LocationHeaderResetButton"]');
+                        if (els.length > 0) {
+                            els[0].click();
+                        }
+                        els = document.querySelectorAll('button[data-testid="LocationModalSubmitButton"]');
+                        if (els.length > 0) {
+                            els[0].click();
+                        }
+                    });               
+                } catch (error) {
+                    console.error('Element not found within the timeout:', error.message);
+                }
             }
             if (req.body.with_photo !== undefined) {
                 delete filters.with_photo;
@@ -1859,6 +1862,12 @@ async function get_results(page) {
                 } catch { }
 
 
+                var containsAdId = data.some(function(item) {
+                    return item.ad_id === ad_id;
+                });
+                if (containsAdId) {
+                    continue;
+                }
                 data.push({ "ad_id": ad_id, "title": title, "ad_link": ad_link, "price": price, "location": loc, "date_posted": date_posted, "description_html": description_html, "dealer_updates": dealer_updates, 'imageSrc': imageSrc });
             } catch (err) {
                 continue;
